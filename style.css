@@ -433,3 +433,45 @@ footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px
   width: 100%;
   max-width: 320px;
 }
+
+
+/* Menu common style (index এর মতো) */
+.menu {
+  position: absolute;
+  right: 16px;
+  top: 56px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.45);
+  z-index: 12000;
+}
+
+.menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.menu ul li {
+  padding: 0;
+}
+
+.menu ul li a,
+.menu ul li button {
+  font-size: 14px;
+  color: var(--text);          /* ✅ index.html এর মতো */
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;          /* index এর spacing */
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.menu ul li a:hover,
+.menu ul li button:hover {
+  background: var(--hover);    /* hover এ index এর মতো color */
+}

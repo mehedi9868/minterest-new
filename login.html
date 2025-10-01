@@ -22,11 +22,15 @@
           <span id="user-email"></span>
         </div>
       </div>
+      <!-- Hamburger -->
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
+      <!-- ✅ Dropdown Menu -->
       <div class="menu" id="headerMenu" hidden>
         <ul>
+          <li><a href="index.html">🏠 Home</a></li>
+          <li><a href="dashboard.html">📊 Dashboard</a></li>
           <li id="menuLogout" hidden><button type="button">Log out</button></li>
         </ul>
       </div>
@@ -97,6 +101,7 @@
       });
     }
 
+    // Login Logic
     const form = document.querySelector('.auth-form');
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -107,12 +112,33 @@
         .catch(err => alert("❌ " + err.message));
     });
 
+    // Google Login
     document.querySelector('.google-btn').addEventListener('click', () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then(() => window.location.href = "index.html")
         .catch(err => alert("❌ " + err.message));
     });
+
+    // ✅ Menu Toggle Script
+    (function(){
+      const burger = document.getElementById('hamburgerBtn');
+      const menu = document.getElementById('headerMenu');
+      if(burger && menu){
+        const toggle = () => {
+          const isHidden = menu.hasAttribute('hidden');
+          if(isHidden){ menu.removeAttribute('hidden'); burger.setAttribute('aria-expanded','true'); }
+          else { menu.setAttribute('hidden',''); burger.setAttribute('aria-expanded','false'); }
+        };
+        burger.addEventListener('click', toggle);
+        document.addEventListener('click', (e) => {
+          if(!menu.contains(e.target) && !burger.contains(e.target)){
+            menu.setAttribute('hidden','');
+            burger.setAttribute('aria-expanded','false');
+          }
+        });
+      }
+    })();
   </script>
 </body>
 </html>
