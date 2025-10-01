@@ -208,3 +208,10 @@ footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px
 
 .auth-foot{ margin-top:18px; font-size:14px; color:var(--muted); }
 .auth-foot a{ color:var(--brand); text-decoration:none; font-weight:600; }
+
+
+/* login */
+.login-link { display:flex; align-items:center; margin-right:12px; }
+.login-icon { width:28px; height:28px; filter:invert(90%); cursor:pointer; }
+.login-icon:hover { opacity:0.8; }
+

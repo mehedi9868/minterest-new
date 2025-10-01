@@ -29,3 +29,52 @@
   </div>
 </body>
 </html>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+
+<script>
+  // 🔑 এখানে তোমার firebaseConfig বসাও
+  const firebaseConfig = {
+    apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
+    authDomain: "minterest-beta.firebaseapp.com",
+    projectId: "minterest-beta",
+    storageBucket: "minterest-beta.firebasestorage.app",
+    messagingSenderId: "822920853423",
+    appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
+    measurementId: "G-J3WZ8EL2XY"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+</script>
+
+
+<!--signup logic-->
+<script>
+  const form = document.querySelector('.auth-form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = form.querySelector('input[type="email"]').value;
+    const password = form.querySelector('input[type="password"]').value;
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        alert("✅ Account created successfully!");
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        alert("❌ " + error.message);
+      });
+  });
+
+  // Google Login
+  document.querySelector('.google-btn').addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .then(() => window.location.href = "index.html")
+      .catch(err => alert("❌ " + err.message));
+  });
+</script>
+
+

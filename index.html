@@ -13,16 +13,16 @@
 <body>
   <!-- Header: branding bar with logo and Reset button -->
 <header>
-    <div class="shell">
-      <div class="bar">
-        <div class="logo" aria-label="Minterest">
-          <div class="logo-badge">Mi</div>
-          <div class="brand">Minterest</div>
-        </div>
-        <div class="spacer"></div>
-        <button class="btn" id="btnReset" type="button" title="প্রথম অবস্থায় ফেরত">Reset</button>
-      </div>
-    </div>
+    <div class="logo" aria-label="Minterest">
+  <div class="logo-badge">Mi</div>
+  <div class="brand">Minterest</div>
+</div>
+<div class="spacer"></div>
+<a href="login.html" class="login-link">
+  <img src="https://www.svgrepo.com/show/533267/login.svg" alt="Login" class="login-icon">
+</a>
+<button class="btn" id="btnReset" type="button" title="প্রথম অবস্থায় ফেরত">Reset</button>
+
   </header>
 
   <!-- Toggle Switch -->
@@ -83,5 +83,31 @@
     // Set current year dynamically in footer
     document.getElementById('yr').textContent = new Date().getFullYear();
   </script>
+
+
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
+    authDomain: "minterest-beta.firebaseapp.com",
+    projectId: "minterest-beta",
+    storageBucket: "minterest-beta.firebasestorage.app",
+    messagingSenderId: "822920853423",
+    appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
+    measurementId: "G-J3WZ8EL2XY"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      console.log("Logged in:", user.email);
+    } else {
+      console.log("Not logged in");
+    }
+  });
+</script>
+
 </body>
 </html>
