@@ -72,7 +72,7 @@
 
   <!-- Success Overlay -->
   <!-- Success overlay: shown after correct password; displays success image + loader -->
-  <div id="success-overlay" class="success-overlay">>
+  <div id="success-overlay" class="success-overlay">
     <img src="success.jpg" alt="Success" class="success-image"/>
     <div class="loader"></div>
   </div>
@@ -92,12 +92,12 @@
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
     projectId: "minterest-beta",
-    storageBucket: "minterest-beta.firebasestorage.app",
+    storageBucket: "minterest-beta.appspot.com",
     messagingSenderId: "822920853423",
     appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
     measurementId: "G-J3WZ8EL2XY"
   };
-  firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
   const auth = firebase.auth();
 
   auth.onAuthStateChanged(user => {
