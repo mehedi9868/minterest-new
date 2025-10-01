@@ -63,7 +63,7 @@
   </footer>
 
   <!-- FAB -->
-  <button id="fab" aria-label="Add" class="fab">+</button>
+  <button id="plusBtn" aria-label="Add" class="fab">+</button>
 
   <!-- Password Modal -->
   <div id="overlay" role="dialog" aria-modal="true">
@@ -104,6 +104,34 @@
     document.getElementById('yr').textContent = new Date().getFullYear();
   </script>
 
+  <script>
+const plusBtn = document.getElementById("plusBtn");
+
+// ডিফল্টে disable করে রাখো
+if (plusBtn) {
+  plusBtn.disabled = true;
+  plusBtn.style.opacity = "0.5";  // হালকা ফেডেড দেখাবে
+}
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    // ✅ User login হলে enable করো
+    if (plusBtn) {
+      plusBtn.disabled = false;
+      plusBtn.style.opacity = "1";
+    }
+  } else {
+    // ❌ User logout হলে আবার disable করো
+    if (plusBtn) {
+      plusBtn.disabled = true;
+      plusBtn.style.opacity = "0.5";
+    }
+  }
+});
+
+
+  </script>  
+  
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
@@ -177,17 +205,7 @@
       });
     }
 
-    if(menuReset){
-      if(typeof window.resetBoard === 'function' || btnReset){
-        menuReset.removeAttribute('hidden');
-        menuReset.querySelector('button').addEventListener('click', () => {
-          if(typeof window.resetBoard === 'function') window.resetBoard();
-          else if(btnReset) btnReset.click();
-        });
-      } else {
-        menuReset.setAttribute('hidden','');
-      }
-    }
+    
   })();
   </script>
 
@@ -230,6 +248,29 @@
                 menuContainer.appendChild(li);
               }
             });
+
+            // ✅ Reset option
+      const resetLi = document.createElement("li");
+      resetLi.id = "menuReset";
+      resetLi.innerHTML = `<button type="button">Reset</button>`;
+      menuContainer.appendChild(resetLi);
+
+      resetLi.querySelector("button").addEventListener("click", () => {
+        if(menuReset){
+      if(typeof window.resetBoard === 'function' || btnReset){
+        menuReset.removeAttribute('hidden');
+        menuReset.querySelector('button').addEventListener('click', () => {
+          if(typeof window.resetBoard === 'function') window.resetBoard();
+          else if(btnReset) btnReset.click();
+        });
+      } else {
+        menuReset.setAttribute('hidden','');
+      }
+    }
+      });
+
+
+
 
             // ✅ Logout option শেষে থাকবে
             const logoutLi = document.createElement("li");
