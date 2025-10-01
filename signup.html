@@ -26,13 +26,14 @@
       Continue with Google
     </button>
     <p class="auth-foot">Already have an account? <a href="login.html">Login</a></p>
-  </div>
+  <p id="auth-msg" class="auth-foot" style="margin-top:10px;"></p>
+</div>
 </body>
 </html>
 
 <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=2"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=2"></script>
 
 <script>
   // 🔑 এখানে তোমার firebaseConfig বসাও
@@ -60,11 +61,11 @@
 
     auth.createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
-        alert("✅ Account created successfully!");
+        document.getElementById("auth-msg").textContent="✅ Success! Redirecting…";
         window.location.href = "index.html";
       })
       .catch((error) => {
-        alert("❌ " + error.message);
+        document.getElementById("auth-msg").textContent="❌ "+error.message;
       });
   });
 
