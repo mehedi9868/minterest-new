@@ -11,38 +11,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- App Header -->
-  <header class="app-header">
-    <div class="header-left">
-      <a href="index.html" class="logo italic">Minterest</a>
-    </div>
-    <div class="header-right">
-      <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="menu" id="headerMenu" hidden>
-        <ul>
-          <li id="menuReset" hidden><button type="button">Reset</button></li>
-          <li id="menuLogout" hidden><button type="button">Log out</button></li>
-        </ul>
-      </div>
-    </div>
-  </header>
-
-  <!-- Auth Notice (shown only when not logged in) -->
-  <section id="auth-notice" class="auth-notice" hidden>
-    <div class="auth-card">
-      <h2>আপনি লগইন করেননি</h2>
-      <p>দয়া করে লগইন করুন। একাউন্ট না থাকলে সাইন আপ করে নিন।</p>
-      <div class="actions">
-        <a href="login.html" class="btn primary">Login</a>
-        <a href="signup.html" class="btn">Sign Up</a>
-      </div>
-    </div>
-  </section>
-
-
   <!-- Header: branding bar with logo and Reset button -->
 <header>
     <div class="logo" aria-label="Minterest">
@@ -104,7 +72,7 @@
 
   <!-- Success Overlay -->
   <!-- Success overlay: shown after correct password; displays success image + loader -->
-  <div id="success-overlay" class="success-overlay">>
+  <div id="success-overlay" class="success-overlay">
     <img src="success.jpg" alt="Success" class="success-image"/>
     <div class="loader"></div>
   </div>
@@ -139,83 +107,6 @@
       console.log("Not logged in");
     }
   });
-</script>
-
-
-<script>
-(function(){
-  // Header menu toggling
-  const burger = document.getElementById('hamburgerBtn');
-  const menu = document.getElementById('headerMenu');
-  if(burger && menu){
-    const toggle = () => {
-      const isHidden = menu.hasAttribute('hidden');
-      if(isHidden){ menu.removeAttribute('hidden'); burger.setAttribute('aria-expanded','true'); }
-      else { menu.setAttribute('hidden',''); burger.setAttribute('aria-expanded','false'); }
-    };
-    burger.addEventListener('click', toggle);
-    document.addEventListener('click', (e) => {
-      if(!menu.contains(e.target) && !burger.contains(e.target)){
-        menu.setAttribute('hidden','');
-        burger.setAttribute('aria-expanded','false');
-      }
-    });
-  }
-
-  // Reset menu item: only show if a reset button or function exists on this page
-  const menuReset = document.getElementById('menuReset');
-  const menuLogout = document.getElementById('menuLogout');
-  const btnReset = document.getElementById('btnReset');
-  if(menuReset){
-    if(typeof window.resetBoard === 'function' || btnReset){
-      menuReset.removeAttribute('hidden');
-      menuReset.querySelector('button').addEventListener('click', () => {
-        if(typeof window.resetBoard === 'function') window.resetBoard();
-        else if(btnReset) btnReset.click();
-      });
-    } else {
-      menuReset.setAttribute('hidden','');
-    }
-  }
-
-  // Auth-state-driven UI (logout visibility, notice on index)
-  try{
-    if(window.firebase && firebase.auth){
-      const auth = firebase.auth();
-      auth.onAuthStateChanged(function(user){
-        if(menuLogout){
-          if(user){ 
-            menuLogout.removeAttribute('hidden');
-          }else{
-            menuLogout.setAttribute('hidden','');
-          }
-        }
-        
-        var notice = document.getElementById('auth-notice');
-        if(notice){
-          if(user){ notice.setAttribute('hidden',''); }
-          else { notice.removeAttribute('hidden'); }
-        }
-      });
-      if(menuLogout){
-        menuLogout.querySelector('button').addEventListener('click', function(){
-          auth.signOut().then(function(){
-            // After logout, return to login page
-            window.location.href = 'login.html';
-          }).catch(function(err){
-            alert("❌ " + err.message);
-          });
-        });
-      }
-    } else {
-      // If Firebase not present, keep menuLogout hidden
-      if(menuLogout){ menuLogout.setAttribute('hidden',''); }
-      
-    }
-  }catch(e){
-    console.warn(e);
-  }
-})();
 </script>
 
 </body>
