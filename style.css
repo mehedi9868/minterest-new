@@ -256,3 +256,12 @@ footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px
 
 /* Offset for header on auth pages */
 .auth-body{ padding-top:72px }
+
+
+/* ---- Header-left alignment to keep "Mi" and "Minterest" side-by-side ---- */
+.app-header .header-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
