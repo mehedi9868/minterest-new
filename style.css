@@ -240,18 +240,19 @@ footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px
 .hamburger{width:38px; height:34px; border:1px solid var(--border); background:transparent; border-radius:10px; display:grid; place-content:center; padding:4px; cursor:pointer}
 .hamburger span{display:block; width:20px; height:2px; background:var(--text); margin:3px 0}
 
-/* Dropdown menu */
-/* Dropdown menu */
+/* Dropdown menu fix */
 .menu {
   position: absolute;
   right: 16px;
-  top: 56px;
+  top: 64px; /* header এর নিচে */
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0,0,0,.45);
-  z-index: 9999;   /* ✅ এখানে যোগ করো */
+  z-index: 12000;   /* ✅ সব কিছুর উপরে */
 }
+
+
 
 .menu ul{list-style:none; margin:0; padding:8px}
 .menu li{margin:0; padding:0}

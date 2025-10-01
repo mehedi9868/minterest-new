@@ -4,9 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Minterest — Drive Pins</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,12 +18,6 @@
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <div class="menu" id="headerMenu" hidden>
-        <ul>
-          <li id="menuReset" hidden><button type="button">Reset</button></li>
-          <li id="menuLogout" hidden><button type="button">Log out</button></li>
-        </ul>
-      </div>
     </div>
   </header>
 
@@ -89,13 +80,21 @@
     <div class="loader"></div>
   </div>
 
+  <!-- Dropdown Menu (body এর শেষে রাখা হলো) -->
+  <div class="menu" id="headerMenu" hidden>
+    <ul>
+      <li id="menuReset" hidden><button type="button">Reset</button></li>
+      <li id="menuLogout" hidden><button type="button">Log out</button></li>
+    </ul>
+  </div>
+
   <!-- Scripts -->
   <script src="app_min.js"></script>
   <script>
     document.getElementById('yr').textContent = new Date().getFullYear();
   </script>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
   <script>
@@ -115,18 +114,16 @@
       const notice = document.getElementById('auth-notice');
       const menuLogout = document.getElementById('menuLogout');
 
-      // ✅ Auth state check
       auth.onAuthStateChanged(user => {
         if (user) {
-          if (notice) notice.style.display = "none";     // hide notice
-          if (menuLogout) menuLogout.removeAttribute("hidden"); // show logout
+          if (notice) notice.style.display = "none";
+          if (menuLogout) menuLogout.removeAttribute("hidden");
         } else {
-          if (notice) notice.style.display = "block";    // show notice
-          if (menuLogout) menuLogout.setAttribute("hidden", ""); // hide logout
+          if (notice) notice.style.display = "block";
+          if (menuLogout) menuLogout.setAttribute("hidden", "");
         }
       });
 
-      // Logout redirect → index.html
       if (menuLogout) {
         menuLogout.querySelector("button").addEventListener("click", () => {
           auth.signOut().then(() => {
@@ -137,7 +134,7 @@
     });
   </script>
 
-  <!-- Header Menu + Reset -->
+  <!-- Header Menu Toggle -->
   <script>
   (function(){
     const burger = document.getElementById('hamburgerBtn');
@@ -145,7 +142,6 @@
     const menuReset = document.getElementById('menuReset');
     const btnReset = document.getElementById('btnReset');
 
-    // Hamburger toggle
     if(burger && menu){
       const toggle = () => {
         const isHidden = menu.hasAttribute('hidden');
@@ -161,7 +157,6 @@
       });
     }
 
-    // ✅ Reset menu enable
     if(menuReset){
       if(typeof window.resetBoard === 'function' || btnReset){
         menuReset.removeAttribute('hidden');
