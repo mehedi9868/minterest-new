@@ -13,29 +13,17 @@
 <body>
   <!-- Header: branding bar with logo and Reset button -->
 <header>
-  <div class="logo" aria-label="Minterest">
-    <div class="logo-badge">Mi</div>
-    <div class="brand">Minterest</div>
-  </div>
+    <div class="logo" aria-label="Minterest">
+  <div class="logo-badge">Mi</div>
+  <div class="brand">Minterest</div>
+</div>
+<div class="spacer"></div>
+<a href="login.html" class="login-link">
+  <img src="https://www.svgrepo.com/show/533267/login.svg" alt="Login" class="login-icon">
+</a>
+<button class="btn" id="btnReset" type="button" title="প্রথম অবস্থায় ফেরত">Reset</button>
 
-  <div id="user-info" class="user-info" style="display:none">
-    <img id="user-photo" class="user-photo" alt="User">
-    <div class="user-meta">
-      <div id="user-name" class="user-name"></div>
-      <div id="user-email" class="user-email"></div>
-    </div>
-  </div>
-
-  <button id="hamburger" class="hamburger" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
-
-  <nav id="menu" class="menu" role="menu" aria-hidden="true">
-    <button class="menu-item" data-action="reset"  role="menuitem">Reset</button>
-    <a class="menu-item" href="signup.html" role="menuitem">Sign Up</a>
-    <button class="menu-item" data-action="logout" role="menuitem">Log Out</button>
-  </nav>
-</header>
+  </header>
 
   <!-- Toggle Switch -->
   <!-- Toggle switch: switch between Images and Videos -->
@@ -84,7 +72,7 @@
 
   <!-- Success Overlay -->
   <!-- Success overlay: shown after correct password; displays success image + loader -->
-  <div id="success-overlay" class="success-overlay">
+  <div id="success-overlay" class="success-overlay">>
     <img src="success.jpg" alt="Success" class="success-image"/>
     <div class="loader"></div>
   </div>
@@ -104,12 +92,12 @@
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
     projectId: "minterest-beta",
-    storageBucket: "minterest-beta.appspot.com",
+    storageBucket: "minterest-beta.firebasestorage.app",
     messagingSenderId: "822920853423",
     appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
     measurementId: "G-J3WZ8EL2XY"
   };
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
   auth.onAuthStateChanged(user => {
@@ -119,104 +107,6 @@
       console.log("Not logged in");
     }
   });
-</script>
-
-<script>
-(function(){
-  const $ = (s)=>document.querySelector(s);
-  const menu = $('#menu');
-  const burger = $('#hamburger');
-  const userInfo = $('#user-info');
-  const uName = $('#user-name');
-  const uEmail = $('#user-email');
-  const uPhoto = $('#user-photo');
-
-  // dropdown toggle
-  if(burger){
-    burger.addEventListener('click', ()=>{
-      const hidden = menu.getAttribute('aria-hidden') === 'true';
-      menu.setAttribute('aria-hidden', hidden ? 'false' : 'true');
-      burger.setAttribute('aria-expanded', hidden ? 'true' : 'false');
-    });
-  }
-  // close on outside click / ESC
-  document.addEventListener('click', (e)=>{
-    if(!menu) return;
-    if(!menu.contains(e.target) && !burger.contains(e.target)){
-      menu.setAttribute('aria-hidden','true'); burger.setAttribute('aria-expanded','false');
-    }
-  });
-  document.addEventListener('keydown', (e)=>{
-    if(e.key === 'Escape' && menu){
-      menu.setAttribute('aria-hidden','true'); burger.setAttribute('aria-expanded','false');
-    }
-  });
-
-  // actions
-  if(menu){
-    menu.addEventListener('click',(e)=>{
-      const btn = e.target.closest('.menu-item'); if(!btn) return;
-      const action = btn.dataset.action;
-      if(action==='reset'){ try{ window.resetBoard && window.resetBoard(); }catch(err){} }
-      if(action==='logout'){
-        try{
-          if(window.auth && auth.signOut){
-            auth.signOut().then(()=>location.href='login.html').catch(()=>location.href='login.html');
-          }else{
-            // Fallback redirect
-            location.href='login.html';
-          }
-        }catch(err){
-          location.href='login.html';
-        }
-      }
-    });
-  }
-
-  // avatar helper
-  function avatarFromName(name){
-    const c = (name||'?').trim().charAt(0).toUpperCase() || 'U';
-    const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>
-      <rect width='100%' height='100%' fill='#2b3441'/><text x='50%' y='55%' font-size='36' text-anchor='middle' fill='#e7ecf3' font-family='Inter,system-ui,sans-serif'>${c}</text>
-    </svg>`);
-    return `data:image/svg+xml;charset=utf-8,${svg}`;
-  }
-
-  // auth-aware UI (Firebase Auth expected as global "auth")
-  if(window.auth && typeof auth.onAuthStateChanged === 'function'){
-    auth.onAuthStateChanged(user=>{
-      if(menu){
-        menu.innerHTML = `
-          <button class="menu-item" data-action="reset" role="menuitem">Reset</button>
-          <a class="menu-item" href="signup.html" role="menuitem">Sign Up</a>
-          <button class="menu-item" data-action="logout" role="menuitem">Log Out</button>
-        `;
-      }
-      if(user){
-        if(menu){
-          menu.innerHTML = `
-            <button class="menu-item" data-action="reset" role="menuitem">Reset</button>
-            <button class="menu-item" data-action="logout" role="menuitem">Log Out</button>
-          `;
-        }
-        if(userInfo){
-          const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-          const email = user.email || '';
-          const photo = user.photoURL || avatarFromName(name);
-          if(uName) uName.textContent = name;
-          if(uEmail) uEmail.textContent = email;
-          if(uPhoto) uPhoto.src = photo;
-          userInfo.style.display = 'flex';
-        }
-      }else{
-        if(userInfo) userInfo.style.display = 'none';
-      }
-    });
-  }else{
-    // If no Firebase present, still show signed-out menu
-    if(userInfo) userInfo.style.display = 'none';
-  }
-})();
 </script>
 
 </body>

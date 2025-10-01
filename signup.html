@@ -26,25 +26,31 @@
       Continue with Google
     </button>
     <p class="auth-foot">Already have an account? <a href="login.html">Login</a></p>
-  <p id="auth-msg" class="auth-foot" style="margin-top:10px;"></p>
-</div>
+  </div>
+</body>
+</html>
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+
 <script>
   // 🔑 এখানে তোমার firebaseConfig বসাও
   const firebaseConfig = {
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
     projectId: "minterest-beta",
-    storageBucket: "minterest-beta.appspot.com",
+    storageBucket: "minterest-beta.firebasestorage.app",
     messagingSenderId: "822920853423",
     appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
     measurementId: "G-J3WZ8EL2XY"
   };
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 </script>
+
+
+<!--signup logic-->
 <script>
   const form = document.querySelector('.auth-form');
   form.addEventListener('submit', (e) => {
@@ -54,11 +60,11 @@
 
     auth.createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
-        document.getElementById("auth-msg").textContent="✅ Success!";
+        alert("✅ Account created successfully!");
         window.location.href = "index.html";
       })
       .catch((error) => {
-        document.getElementById("auth-msg").textContent="❌ "+error.message;
+        alert("❌ " + error.message);
       });
   });
 
@@ -69,18 +75,6 @@
       .then(() => window.location.href = "index.html")
       .catch(err => alert("❌ " + err.message));
   });
-  });
-</script></body>
-</html>
-
-<!-- Firebase SDKs -->
-
-
-
-
-
-
-<!--signup logic-->
-
+</script>
 
 
