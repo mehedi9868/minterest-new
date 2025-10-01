@@ -32,8 +32,8 @@
 </html>
 
 <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=2"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=2"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=3"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=3"></script>
 
 <script>
   // 🔑 এখানে তোমার firebaseConfig বসাও
@@ -59,14 +59,21 @@
     const email = form.querySelector('input[type="email"]').value;
     const password = form.querySelector('input[type="password"]').value;
 
-    auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        document.getElementById("auth-msg").textContent="✅ Success! Redirecting…";
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        document.getElementById("auth-msg").textContent="❌ "+error.message;
-      });
+    
+auth.createUserWithEmailAndPassword(email, password)
+  .then((userCredential) => {
+    const user = userCredential.user;
+    // Send verification email
+    user.sendEmailVerification().catch(() => {});
+    document.getElementById("auth-msg").textContent = "✅ Account created! Verification email sent. Please verify, then login.";
+    // Sign out so that login requires verified email
+    auth.signOut();
+    setTimeout(() => { window.location.href = "login.html"; }, 1200);
+  })
+  .catch((error) => {
+    document.getElementById("auth-msg").textContent = "❌ " + error.message;
+  });
+
   });
 
   // Google Login

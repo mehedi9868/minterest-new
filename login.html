@@ -20,6 +20,7 @@
       </div>
       <button type="submit" class="btn primary full">Login</button>
     </form>
+    <button type="button" id="btnForgot" class="btn full" style="margin-top:10px;">Forgot password?</button>
     <div class="divider"><span>or</span></div>
     <button class="btn google-btn">
       <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" class="google-icon">
@@ -32,8 +33,8 @@
 </html>
 
 <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=2"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=2"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=3"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=3"></script>
 
 <script>
   // 🔑 এখানে তোমার firebaseConfig বসাও
@@ -58,14 +59,24 @@
     const email = form.querySelector('input[type="email"]').value;
     const password = form.querySelector('input[type="password"]').value;
 
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById("auth-msg").textContent="✅ Success! Redirecting…";
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        document.getElementById("auth-msg").textContent="❌ "+error.message;
-      });
+    
+auth.signInWithEmailAndPassword(email, password)
+  .then((cred) => {
+    const user = cred.user;
+    if (!user.emailVerified) {
+      // Send verification email and sign out
+      user.sendEmailVerification().catch(() => {});
+      document.getElementById("auth-msg").textContent = "📧 Verification email sent. Please verify your email, then log in.";
+      auth.signOut();
+      return;
+    }
+    document.getElementById("auth-msg").textContent = "✅ Login successful! Redirecting…";
+    window.location.href = "index.html";
+  })
+  .catch((error) => {
+    document.getElementById("auth-msg").textContent = "❌ " + error.message;
+  });
+
   });
 
   // Google Login
