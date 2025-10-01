@@ -26,14 +26,13 @@
       Continue with Google
     </button>
     <p class="auth-foot">Already have an account? <a href="login.html">Login</a></p>
-  <p id="auth-msg" class="auth-foot" style="margin-top:10px;"></p>
-</div>
+  </div>
 </body>
 </html>
 
 <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=4"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=4"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
 
 <script>
   // 🔑 এখানে তোমার firebaseConfig বসাও
@@ -41,12 +40,12 @@
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
     projectId: "minterest-beta",
-    storageBucket: "minterest-beta.appspot.com",
+    storageBucket: "minterest-beta.firebasestorage.app",
     messagingSenderId: "822920853423",
     appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
     measurementId: "G-J3WZ8EL2XY"
   };
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 </script>
 
@@ -59,19 +58,14 @@
     const email = form.querySelector('input[type="email"]').value;
     const password = form.querySelector('input[type="password"]').value;
 
-    
-auth.createUserWithEmailAndPassword(email, password)
-  .then((userCredential) => {
-    const user = userCredential.user;
-    user.sendEmailVerification().catch(() => {});
-    document.getElementById("auth-msg").textContent = "✅ একাউন্ট খোলা সফল হয়েছে! ইমেইল ভেরিফিকেশন লিংক পাঠানো হয়েছে—দয়া করে ভেরিফাই করুন।";
-    auth.signOut();
-    setTimeout(() => { window.location.href = "login.html?from=signup"; }, 1400);
-  })
-  .catch((error) => {
-    document.getElementById("auth-msg").textContent = "❌ " + error.message;
-  });
-
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        alert("✅ Account created successfully!");
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        alert("❌ " + error.message);
+      });
   });
 
   // Google Login

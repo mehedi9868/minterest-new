@@ -201,6 +201,7 @@ function renderFileCard(file){
   if(!grid) return;
   const isVideo = (file.mimeType || '').startsWith('video/');
   const card = document.createElement('article');
+  const num = document.createElement('div'); num.className='num-badge'; num.textContent = String(renderCount + 1); card.appendChild(num);
   card.className = 'card';
   card.dataset.type = isVideo ? 'video' : 'image';
 
@@ -254,6 +255,7 @@ async function handleAdd(){
       return;
     }
     showSuccessOverlay();
+    try{ const n=document.getElementById('notice'); if(n) n.style.display='none'; }catch(e){}
     // always use default folder (clean build)
     let folderId = getFolderIdFromUrl(DEFAULT_DRIVE_URL);
     if(!folderId){
@@ -285,20 +287,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const btnAdd = document.getElementById('btnAdd');
   const mediaToggle = document.getElementById('mediaToggle');
 
-  
-// Require auth before opening the password modal
-function checkAuthThenOpen(){
-  try {
-    if (window.firebase && firebase.apps && firebase.apps.length) {
-      const u = firebase.auth().currentUser;
-      if (!u) { showToast('আগে লগইন করুন'); return; }
-      if (u && !u.emailVerified) { showToast('আগে ইমেইল ভেরিফাই করুন'); return; }
-    }
-  } catch (e) {}
-  openModal();
-}
-if(fab) fab.addEventListener('click', checkAuthThenOpen);
-
+  if(fab) fab.addEventListener('click', openModal);
   if(btnReset) btnReset.addEventListener('click', resetBoard);
   if(btnCancel) btnCancel.addEventListener('click', closeModal);
   if(btnAdd) btnAdd.addEventListener('click', handleAdd);

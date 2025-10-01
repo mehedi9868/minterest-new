@@ -26,34 +26,13 @@
       Continue with Google
     </button>
     <p class="auth-foot">Don't have an account? <a href="signup.html">Sign Up</a></p>
-  <p id="auth-msg" class="auth-foot" style="margin-top:10px;"></p>
-</div>
+  </div>
 </body>
 </html>
 
 <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=4">
-// handle from=signup banner
-(function(){
-  const p = new URLSearchParams(location.search);
-  if (p.get('from') === 'signup') {
-    const el = document.getElementById('auth-msg');
-    if (el) el.textContent = "ℹ️ একাউন্ট তৈরি হয়েছে। ইমেইল ভেরিফাই করে তারপর লগইন করুন।";
-  }
-})();
-</script>
-
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=4">
-// handle from=signup banner
-(function(){
-  const p = new URLSearchParams(location.search);
-  if (p.get('from') === 'signup') {
-    const el = document.getElementById('auth-msg');
-    if (el) el.textContent = "ℹ️ একাউন্ট তৈরি হয়েছে। ইমেইল ভেরিফাই করে তারপর লগইন করুন।";
-  }
-})();
-</script>
-
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
 
 <script>
   // 🔑 এখানে তোমার firebaseConfig বসাও
@@ -61,24 +40,14 @@
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
     projectId: "minterest-beta",
-    storageBucket: "minterest-beta.appspot.com",
+    storageBucket: "minterest-beta.firebasestorage.app",
     messagingSenderId: "822920853423",
     appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
     measurementId: "G-J3WZ8EL2XY"
   };
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-
-// handle from=signup banner
-(function(){
-  const p = new URLSearchParams(location.search);
-  if (p.get('from') === 'signup') {
-    const el = document.getElementById('auth-msg');
-    if (el) el.textContent = "ℹ️ একাউন্ট তৈরি হয়েছে। ইমেইল ভেরিফাই করে তারপর লগইন করুন।";
-  }
-})();
 </script>
-
 
 <!--login logic-->
 <script>
@@ -88,23 +57,14 @@
     const email = form.querySelector('input[type="email"]').value;
     const password = form.querySelector('input[type="password"]').value;
 
-    
-auth.signInWithEmailAndPassword(email, password)
-  .then((cred) => {
-    const user = cred.user;
-    if (!user.emailVerified) {
-      user.sendEmailVerification().catch(() => {});
-      document.getElementById("auth-msg").textContent = "📧 ইমেইল ভেরিফিকেশন দরকার। ইনবক্স চেক করুন—নতুন লিংক পাঠানো হলো।";
-      auth.signOut();
-      return;
-    }
-    document.getElementById("auth-msg").textContent = "✅ ভেরিফাই হয়েছে! এখন আপনি লগইন হয়েছেন—রিডাইরেক্ট করা হচ্ছে…";
-    setTimeout(() => { window.location.href = "index.html?login=ok"; }, 1000);
-  })
-  .catch((error) => {
-    document.getElementById("auth-msg").textContent = "❌ " + error.message;
-  });
-
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        alert("✅ Login successful!");
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        alert("❌ " + error.message);
+      });
   });
 
   // Google Login
@@ -114,14 +74,4 @@ auth.signInWithEmailAndPassword(email, password)
       .then(() => window.location.href = "index.html")
       .catch(err => alert("❌ " + err.message));
   });
-
-// handle from=signup banner
-(function(){
-  const p = new URLSearchParams(location.search);
-  if (p.get('from') === 'signup') {
-    const el = document.getElementById('auth-msg');
-    if (el) el.textContent = "ℹ️ একাউন্ট তৈরি হয়েছে। ইমেইল ভেরিফাই করে তারপর লগইন করুন।";
-  }
-})();
 </script>
-

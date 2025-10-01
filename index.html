@@ -27,7 +27,6 @@
 
   <!-- Toggle Switch -->
   <!-- Toggle switch: switch between Images and Videos -->
-  <div id="notice" class="notice" aria-live="polite"></div>
   <div class="toggle-bar">
     <div class="toggle" id="mediaToggle" role="switch" aria-checked="false" tabindex="0" aria-label="Switch between Images and Videos">
       <span class="option image">Images</span>
@@ -73,7 +72,7 @@
 
   <!-- Success Overlay -->
   <!-- Success overlay: shown after correct password; displays success image + loader -->
-  <div id="success-overlay" class="success-overlay">
+  <div id="success-overlay" class="success-overlay">>
     <img src="success.jpg" alt="Success" class="success-image"/>
     <div class="loader"></div>
   </div>
@@ -86,37 +85,20 @@
   </script>
 
 
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=4"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=4"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
     projectId: "minterest-beta",
-    storageBucket: "minterest-beta.appspot.com",
+    storageBucket: "minterest-beta.firebasestorage.app",
     messagingSenderId: "822920853423",
     appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
     measurementId: "G-J3WZ8EL2XY"
   };
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-
-  /* NOTICE LOGIC */
-
-// --- NOTICE LOGIC (shows guidance based on auth state) ---
-function setNotice(html) {
-  const n = document.getElementById('notice');
-  if (n) { n.innerHTML = html; n.style.display = html ? 'block' : 'none'; }
-}
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    setNotice('🔔 আপনার কোনো অ্যাকাউন্ট নেই? <a class="link" href="signup.html">একটি অ্যাকাউন্ট খুলুন</a>');
-  } else if (!user.emailVerified) {
-    setNotice('📧 আপনার ইমেইল এখনো ভেরিফাই হয়নি। দয়া করে ইনবক্স চেক করুন—ভেরিফাই করে নিন।');
-  } else {
-    setNotice('✅ লগইন সম্পন্ন। "+" বোতামে চাপ দিলে পাসওয়ার্ড দিয়ে কনটেন্ট যোগ করতে পারবেন।');
-  }
-});
 
   auth.onAuthStateChanged(user => {
     if (user) {
