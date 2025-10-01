@@ -10,7 +10,7 @@
 
   <!-- App Header -->
   <header class="app-header">
-    <div class="header-left">
+    <div class="header-left" style="display:flex; align-items:center; gap:8px;">
       <a href="index.html" class="logo italic">Minterest</a>
     </div>
     <div class="header-right">
@@ -47,86 +47,10 @@
     <p class="auth-foot">Already have an account? <a href="login.html">Login</a></p>
   </div>
 
-<script>
-(function(){
-  // Header menu toggling
-  const burger = document.getElementById('hamburgerBtn');
-  const menu = document.getElementById('headerMenu');
-  if(burger && menu){
-    const toggle = () => {
-      const isHidden = menu.hasAttribute('hidden');
-      if(isHidden){ menu.removeAttribute('hidden'); burger.setAttribute('aria-expanded','true'); }
-      else { menu.setAttribute('hidden',''); burger.setAttribute('aria-expanded','false'); }
-    };
-    burger.addEventListener('click', toggle);
-    document.addEventListener('click', (e) => {
-      if(!menu.contains(e.target) && !burger.contains(e.target)){
-        menu.setAttribute('hidden','');
-        burger.setAttribute('aria-expanded','false');
-      }
-    });
-  }
-
-  // Reset menu item: only show if a reset button or function exists on this page
-  const menuReset = document.getElementById('menuReset');
-  const menuLogout = document.getElementById('menuLogout');
-  const btnReset = document.getElementById('btnReset');
-  if(menuReset){
-    if(typeof window.resetBoard === 'function' || btnReset){
-      menuReset.removeAttribute('hidden');
-      menuReset.querySelector('button').addEventListener('click', () => {
-        if(typeof window.resetBoard === 'function') window.resetBoard();
-        else if(btnReset) btnReset.click();
-      });
-    } else {
-      menuReset.setAttribute('hidden','');
-    }
-  }
-
-  // Auth-state-driven UI (logout visibility, notice on index)
-  try{
-    if(window.firebase && firebase.auth){
-      const auth = firebase.auth();
-      auth.onAuthStateChanged(function(user){
-        if(menuLogout){
-          if(user){ 
-            menuLogout.removeAttribute('hidden');
-          }else{
-            menuLogout.setAttribute('hidden','');
-          }
-        }
-        
-      });
-      if(menuLogout){
-        menuLogout.querySelector('button').addEventListener('click', function(){
-          auth.signOut().then(function(){
-            // After logout, return to login page
-            window.location.href = 'login.html';
-          }).catch(function(err){
-            alert("❌ " + err.message);
-          });
-        });
-      }
-    } else {
-      // If Firebase not present, keep menuLogout hidden
-      if(menuLogout){ menuLogout.setAttribute('hidden',''); }
-      
-    }
-  }catch(e){
-    console.warn(e);
-  }
-})();
-</script>
-
-</body>
-</html>
-
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
 
 <script>
-  // 🔑 এখানে তোমার firebaseConfig বসাও
   const firebaseConfig = {
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
@@ -140,7 +64,6 @@
   const auth = firebase.auth();
 </script>
 
-
 <!--signup logic-->
 <script>
   const form = document.querySelector('.auth-form');
@@ -150,7 +73,7 @@
     const password = form.querySelector('input[type="password"]').value;
 
     auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
+      .then(() => {
         alert("✅ Account created successfully!");
         window.location.href = "index.html";
       })
@@ -166,6 +89,18 @@
       .then(() => window.location.href = "index.html")
       .catch(err => alert("❌ " + err.message));
   });
+
+  // Logout redirect fix
+  const menuLogout = document.getElementById('menuLogout');
+  if(menuLogout){
+    menuLogout.querySelector('button').addEventListener('click', function(){
+      auth.signOut().then(function(){
+        window.location.href = 'index.html';
+      }).catch(function(err){
+        alert("❌ " + err.message);
+      });
+    });
+  }
 </script>
-
-
+</body>
+</html>
