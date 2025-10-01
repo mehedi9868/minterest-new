@@ -165,3 +165,46 @@ footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px
 
 /* Ensure videos fit 16:9 within cards */
 .card video{ aspect-ratio: 16 / 9; object-fit: cover; }
+
+
+
+/*LOGIN and SIGNUP form styles*/
+/* Auth pages */
+.auth-body{
+  display:flex; justify-content:center; align-items:center;
+  min-height:100vh; background:var(--bg); font-family:Inter, sans-serif;
+}
+
+.auth-container{
+  width:100%; max-width:400px; background:var(--panel);
+  border:1px solid var(--border); border-radius:16px;
+  padding:32px 28px; box-shadow:0 6px 30px rgba(0,0,0,.4);
+  text-align:center;
+}
+
+.auth-title{ margin-bottom:22px; font-size:22px; font-weight:700; }
+
+.auth-form{ display:flex; flex-direction:column; gap:14px; text-align:left; }
+.form-group label{ font-size:13px; color:var(--muted); margin-bottom:4px; display:block; }
+.form-group input{
+  width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+  background:#0c1219; color:var(--text);
+}
+.btn.full{ width:100%; margin-top:6px; }
+
+.divider{
+  display:flex; align-items:center; margin:22px 0; color:var(--muted); font-size:13px;
+}
+.divider::before, .divider::after{
+  content:""; flex:1; border-top:1px solid var(--border); margin:0 10px;
+}
+
+.google-btn{
+  background:#fff; color:#333; display:flex; align-items:center; justify-content:center;
+  gap:10px; padding:10px 14px; border-radius:8px; font-weight:600; border:none; cursor:pointer;
+}
+.google-btn:hover{ background:#f1f1f1; }
+.google-icon{ width:20px; height:20px; }
+
+.auth-foot{ margin-top:18px; font-size:14px; color:var(--muted); }
+.auth-foot a{ color:var(--brand); text-decoration:none; font-weight:600; }
