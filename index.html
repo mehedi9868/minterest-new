@@ -21,8 +21,8 @@
     </div>
   </header>
 
-  <!-- Auth Notice -->
-  <section id="auth-notice" class="auth-notice">
+  <!-- Auth Notice (ডিফল্টে hidden রাখা হলো) -->
+  <section id="auth-notice" class="auth-notice" style="display:none;">
     <div class="auth-card">
       <h2>আপনি লগইন করেননি</h2>
       <p>দয়া করে লগইন করুন। একাউন্ট না থাকলে সাইন আপ করে নিন।</p>
@@ -80,7 +80,7 @@
     <div class="loader"></div>
   </div>
 
-  <!-- Dropdown Menu (body এর শেষে রাখা হলো) -->
+  <!-- Dropdown Menu -->
   <div class="menu" id="headerMenu" hidden>
     <ul>
       <li id="menuReset" hidden><button type="button">Reset</button></li>
@@ -114,16 +114,18 @@
       const notice = document.getElementById('auth-notice');
       const menuLogout = document.getElementById('menuLogout');
 
+      // ✅ Auth state check
       auth.onAuthStateChanged(user => {
         if (user) {
-          if (notice) notice.style.display = "none";
+          if (notice) notice.style.display = "none";     // Hide
           if (menuLogout) menuLogout.removeAttribute("hidden");
         } else {
-          if (notice) notice.style.display = "block";
+          if (notice) notice.style.display = "block";    // Show only if no user
           if (menuLogout) menuLogout.setAttribute("hidden", "");
         }
       });
 
+      // Logout redirect → index.html
       if (menuLogout) {
         menuLogout.querySelector("button").addEventListener("click", () => {
           auth.signOut().then(() => {
@@ -134,7 +136,7 @@
     });
   </script>
 
-  <!-- Header Menu Toggle -->
+  <!-- Header Menu + Reset -->
   <script>
   (function(){
     const burger = document.getElementById('hamburgerBtn');
