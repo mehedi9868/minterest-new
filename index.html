@@ -18,16 +18,42 @@
   <div class="brand">Minterest</div>
 </div>
 <div class="spacer"></div>
-<a href="login.html" class="login-link">
-  <img src="https://www.svgrepo.com/show/533267/login.svg" alt="Login" class="login-icon">
-</a>
+<div class="menu-wrap">
+  <button id="menuButtonMobile" class="icon-btn only-mobile" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
+    <span class="hamburger"></span>
+  </button>
+  <button id="menuButtonDesktop" class="icon-btn only-desktop" aria-label="More" aria-haspopup="true" aria-expanded="false">
+    <span class="kebab"></span>
+  </button>
+  <div id="dropdown" class="dropdown" role="menu" aria-hidden="true">
+    <div class="menu-section" id="menuGuest">
+      <a href="login.html" class="menu-item">Login
+      <a href="signup.html" class="menu-item">Sign Up
+    </div>
+    <div class="menu-section" id="menuUser">
+      <div class="user-chip">
+        <div class="avatar" id="userAvatar"></div>
+        <div class="user-meta">
+          <div class="user-name" id="userName"></div>
+          <div class="user-email" id="userEmail"></div>
+        </div>
+      </div>
+      <button class="menu-item danger" id="btnLogout" type="button">Log out</button>
+    </div>
+    <div class="menu-section">
+      <button class="menu-item" id="btnResetHeader" type="button">Reset</button>
+    </div>
+  </div>
+</div>
+<!-- removed old login link -->
+  
+
 <button class="btn" id="btnReset" type="button" title="প্রথম অবস্থায় ফেরত">Reset</button>
 
   </header>
 
   <!-- Toggle Switch -->
   <!-- Toggle switch: switch between Images and Videos -->
-  <div id="notice" class="notice" aria-live="polite"></div>
   <div class="toggle-bar">
     <div class="toggle" id="mediaToggle" role="switch" aria-checked="false" tabindex="0" aria-label="Switch between Images and Videos">
       <span class="option image">Images</span>
@@ -73,7 +99,7 @@
 
   <!-- Success Overlay -->
   <!-- Success overlay: shown after correct password; displays success image + loader -->
-  <div id="success-overlay" class="success-overlay">
+  <div id="success-overlay" class="success-overlay">>
     <img src="success.jpg" alt="Success" class="success-image"/>
     <div class="loader"></div>
   </div>
@@ -86,37 +112,20 @@
   </script>
 
 
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js?v=4"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js?v=4"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
     authDomain: "minterest-beta.firebaseapp.com",
     projectId: "minterest-beta",
-    storageBucket: "minterest-beta.appspot.com",
+    storageBucket: "minterest-beta.firebasestorage.app",
     messagingSenderId: "822920853423",
     appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
     measurementId: "G-J3WZ8EL2XY"
   };
-  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-
-  /* NOTICE LOGIC */
-
-// --- NOTICE LOGIC (shows guidance based on auth state) ---
-function setNotice(html) {
-  const n = document.getElementById('notice');
-  if (n) { n.innerHTML = html; n.style.display = html ? 'block' : 'none'; }
-}
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    setNotice('🔔 আপনার কোনো অ্যাকাউন্ট নেই? <a class="link" href="signup.html">একটি অ্যাকাউন্ট খুলুন</a>');
-  } else if (!user.emailVerified) {
-    setNotice('📧 আপনার ইমেইল এখনো ভেরিফাই হয়নি। দয়া করে ইনবক্স চেক করুন—ভেরিফাই করে নিন।');
-  } else {
-    setNotice('✅ লগইন সম্পন্ন। "+" বোতামে চাপ দিলে পাসওয়ার্ড দিয়ে কনটেন্ট যোগ করতে পারবেন।');
-  }
-});
 
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -125,6 +134,67 @@ auth.onAuthStateChanged(user => {
       console.log("Not logged in");
     }
   });
+
+// MENU LOGIC: responsive kebab/hamburger + auth-driven items
+(function(){
+  const btnD = document.getElementById('menuButtonDesktop');
+  const btnM = document.getElementById('menuButtonMobile');
+  const dd = document.getElementById('dropdown');
+  const guest = document.getElementById('menuGuest');
+  const userSec = document.getElementById('menuUser');
+  const btnLogout = document.getElementById('btnLogout');
+  const btnResetHeader = document.getElementById('btnResetHeader');
+  function toggle(open){
+    const s = (open===undefined) ? dd.getAttribute('aria-hidden')==='true' : open;
+    dd.setAttribute('aria-hidden', s? 'false':'true');
+    (btnD||{}).setAttribute && btnD.setAttribute('aria-expanded', s? 'true':'false');
+    (btnM||{}).setAttribute && btnM.setAttribute('aria-expanded', s? 'true':'false');
+  }
+  (btnD||{}).addEventListener && btnD.addEventListener('click', ()=>toggle());
+  (btnM||{}).addEventListener && btnM.addEventListener('click', ()=>toggle());
+  document.addEventListener('click', (e)=>{
+    if(!dd.contains(e.target) && !e.target.closest('.icon-btn')) dd.setAttribute('aria-hidden','true');
+  });
+  // reset from header
+  (btnResetHeader||{}).addEventListener && btnResetHeader.addEventListener('click', ()=>{
+    try{ document.getElementById('btnReset').click(); }catch(e){}
+    dd.setAttribute('aria-hidden','true');
+  });
+  // logout
+  (btnLogout||{}).addEventListener && btnLogout.addEventListener('click', ()=>{
+    if(window.firebase && firebase.apps && firebase.apps.length){
+      firebase.auth().signOut().then(()=>{
+        showToast('Logged out');
+        dd.setAttribute('aria-hidden','true');
+      });
+    }
+  });
+  // fill user chip based on auth
+  auth.onAuthStateChanged(user=>{
+    if(user && user.emailVerified){
+      guest.style.display='none';
+      userSec.style.display='block';
+      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+      const email = user.email || '';
+      const av = document.getElementById('userAvatar');
+      const nm = document.getElementById('userName');
+      const em = document.getElementById('userEmail');
+      nm.textContent = name;
+      em.textContent = email;
+      if(user.photoURL){
+        av.style.backgroundImage = 'url("'+user.photoURL+'")';
+        av.classList.add('photo');
+      }else{
+        av.textContent = (name[0]||'?').toUpperCase();
+        av.classList.remove('photo');
+      }
+    }else{
+      guest.style.display='block';
+      userSec.style.display='none';
+    }
+  });
+})();
+
 </script>
 
 </body>
