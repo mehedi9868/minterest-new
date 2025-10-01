@@ -8,24 +8,32 @@
 </head>
 <body class="auth-body">
 
-  <!-- App Header -->
+  <!-- ✅ App Header -->
   <header class="app-header">
     <div class="header-left" style="display:flex; align-items:center; gap:8px;">
+      <span class="logo-badge">Mi</span>
       <a href="index.html" class="logo italic">Minterest</a>
     </div>
     <div class="header-right">
+      <div id="user-info" class="user-info" style="display:none;">
+        <img id="user-pic" class="user-pic" src="" alt="User" />
+        <div class="user-text">
+          <span id="user-name"></span>
+          <span id="user-email"></span>
+        </div>
+      </div>
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
       <div class="menu" id="headerMenu" hidden>
         <ul>
-          <li id="menuReset" hidden><button type="button">Reset</button></li>
           <li id="menuLogout" hidden><button type="button">Log out</button></li>
         </ul>
       </div>
     </div>
   </header>
 
+  <!-- Login Form -->
   <div class="auth-container">
     <h2 class="auth-title">Welcome Back</h2>
     <form class="auth-form">
@@ -47,60 +55,64 @@
     <p class="auth-foot">Don't have an account? <a href="signup.html">Sign Up</a></p>
   </div>
 
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
-    authDomain: "minterest-beta.firebaseapp.com",
-    projectId: "minterest-beta",
-    storageBucket: "minterest-beta.firebasestorage.app",
-    messagingSenderId: "822920853423",
-    appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
-    measurementId: "G-J3WZ8EL2XY"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-</script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
+      authDomain: "minterest-beta.firebaseapp.com",
+      projectId: "minterest-beta",
+      storageBucket: "minterest-beta.firebasestorage.app",
+      messagingSenderId: "822920853423",
+      appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
+      measurementId: "G-J3WZ8EL2XY"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-<!--login logic-->
-<script>
-  const form = document.querySelector('.auth-form');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = form.querySelector('input[type="email"]').value;
-    const password = form.querySelector('input[type="password"]').value;
+    const userInfo = document.getElementById('user-info');
+    const userPic = document.getElementById('user-pic');
+    const userName = document.getElementById('user-name');
+    const userEmail = document.getElementById('user-email');
+    const menuLogout = document.getElementById('menuLogout');
 
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        alert("✅ Login successful!");
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        alert("❌ " + error.message);
-      });
-  });
-
-  // Google Login
-  document.querySelector('.google-btn').addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .then(() => window.location.href = "index.html")
-      .catch(err => alert("❌ " + err.message));
-  });
-
-  // Logout redirect fix
-  const menuLogout = document.getElementById('menuLogout');
-  if(menuLogout){
-    menuLogout.querySelector('button').addEventListener('click', function(){
-      auth.signOut().then(function(){
-        window.location.href = 'index.html';
-      }).catch(function(err){
-        alert("❌ " + err.message);
-      });
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        userInfo.style.display = "flex";
+        userPic.src = user.photoURL || "https://www.svgrepo.com/show/452030/user.svg";
+        userName.textContent = user.displayName || "";
+        userEmail.textContent = user.email || "";
+        menuLogout.removeAttribute("hidden");
+      } else {
+        userInfo.style.display = "none";
+        menuLogout.setAttribute("hidden","");
+      }
     });
-  }
-</script>
+
+    if (menuLogout) {
+      menuLogout.querySelector("button").addEventListener("click", () => {
+        auth.signOut().then(() => window.location.href = "index.html");
+      });
+    }
+
+    const form = document.querySelector('.auth-form');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = form.querySelector('input[type="email"]').value;
+      const password = form.querySelector('input[type="password"]').value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => window.location.href = "index.html")
+        .catch(err => alert("❌ " + err.message));
+    });
+
+    document.querySelector('.google-btn').addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(() => window.location.href = "index.html")
+        .catch(err => alert("❌ " + err.message));
+    });
+  </script>
 </body>
 </html>

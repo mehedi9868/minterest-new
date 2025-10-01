@@ -335,3 +335,101 @@ footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px
   align-items: center;
   gap: 12px; /* user info আর hamburger এর মাঝে ফাঁকা */
 }
+
+
+/* Auth pages fix */
+.auth-body {
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header always top এ থাকবে */
+.auth-body .app-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+/* Form কে center এ আনা */
+.auth-container {
+  margin: auto;   /* ✅ header বাদে form মাঝখানে আসবে */
+}
+/* Auth pages fix */
+
+/* Body fix so header stays top */
+.auth-body {
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header fix - always top */
+.auth-body .app-header {
+  position: relative;   /* আগে sticky করায় gap হচ্ছিল */
+  top: 0;
+  margin: 0;
+  padding: 12px 24px;   /* সুন্দর দেখাবে */
+  width: 100%;
+}
+
+/* Auth container center */
+.auth-container {
+  margin: auto;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* Google button center fix */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* ✅ বাটন সবসময় মাঝখানে */
+  gap: 8px;
+  margin: 12px auto;        /* ✅ auto margin দিলে ফর্মের মাঝখানে বসবে */
+  width: 100%;
+  max-width: 320px;         /* যেন বড্ড বড় না হয় */
+}
+
+
+/* পুরো auth পেজ লে-আউট */
+.auth-body {
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header সবসময় একদম উপরে */
+.auth-body .app-header {
+  position: fixed;      /* ✅ এখন header সবসময় উপরে */
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 24px;
+  background: var(--bg);
+  z-index: 1000;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ফর্মকে নিচে নামিয়ে center করা */
+.auth-container {
+  margin: auto;
+  margin-top: 120px;   /* ✅ header এর নিচে জায়গা */
+  width: 100%;
+  max-width: 360px;
+}
+
+/* Google button center */
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px auto;
+  width: 100%;
+  max-width: 320px;
+}
