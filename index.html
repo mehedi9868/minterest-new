@@ -15,13 +15,23 @@
       <a href="index.html" class="logo italic">Minterest</a>
     </div>
     <div class="header-right">
+      <!-- ✅ User info -->
+      <div id="user-info" class="user-info" style="display:none;">
+        <img id="user-pic" class="user-pic" src="" alt="User" />
+        <div class="user-text">
+          <span id="user-name"></span>
+          <span id="user-email"></span>
+        </div>
+      </div>
+
+      <!-- ✅ Hamburger menu button -->
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </header>
 
-  <!-- Auth Notice (ডিফল্টে hidden রাখা হলো) -->
+  <!-- Auth Notice -->
   <section id="auth-notice" class="auth-notice" style="display:none;">
     <div class="auth-card">
       <h2>আপনি লগইন করেননি</h2>
@@ -113,19 +123,27 @@
 
       const notice = document.getElementById('auth-notice');
       const menuLogout = document.getElementById('menuLogout');
+      const userInfo = document.getElementById('user-info');
+      const userPic = document.getElementById('user-pic');
+      const userName = document.getElementById('user-name');
+      const userEmail = document.getElementById('user-email');
 
-      // ✅ Auth state check
       auth.onAuthStateChanged(user => {
         if (user) {
-          if (notice) notice.style.display = "none";     // Hide
+          if (notice) notice.style.display = "none";
           if (menuLogout) menuLogout.removeAttribute("hidden");
+
+          if (userInfo) userInfo.style.display = "flex";
+          if (userPic) userPic.src = user.photoURL || "https://www.svgrepo.com/show/452030/user.svg";
+          if (userName) userName.textContent = user.displayName || "";
+          if (userEmail) userEmail.textContent = user.email || "";
         } else {
-          if (notice) notice.style.display = "block";    // Show only if no user
+          if (notice) notice.style.display = "block";
           if (menuLogout) menuLogout.setAttribute("hidden", "");
+          if (userInfo) userInfo.style.display = "none";
         }
       });
 
-      // Logout redirect → index.html
       if (menuLogout) {
         menuLogout.querySelector("button").addEventListener("click", () => {
           auth.signOut().then(() => {
