@@ -31,7 +31,7 @@
   </header>
 
   <!-- Auth Notice -->
-  <section id="auth-notice" class="auth-notice" hidden>
+  <section id="auth-notice" class="auth-notice">
     <div class="auth-card">
       <h2>আপনি লগইন করেননি</h2>
       <p>দয়া করে লগইন করুন। একাউন্ট না থাকলে সাইন আপ করে নিন।</p>
@@ -99,36 +99,38 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
-      authDomain: "minterest-beta.firebaseapp.com",
-      projectId: "minterest-beta",
-      storageBucket: "minterest-beta.firebasestorage.app",
-      messagingSenderId: "822920853423",
-      appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
-      measurementId: "G-J3WZ8EL2XY"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    document.addEventListener("DOMContentLoaded", () => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
+        authDomain: "minterest-beta.firebaseapp.com",
+        projectId: "minterest-beta",
+        storageBucket: "minterest-beta.firebasestorage.app",
+        messagingSenderId: "822920853423",
+        appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
+        measurementId: "G-J3WZ8EL2XY"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
 
-    // ✅ Fixed Auth Notice + Logout redirect
-    auth.onAuthStateChanged(user => {
       const notice = document.getElementById('auth-notice');
       const menuLogout = document.getElementById('menuLogout');
-      if (user) {
-        if (notice) notice.setAttribute('hidden','');
-        if (menuLogout) menuLogout.removeAttribute('hidden');
-      } else {
-        if (notice) notice.removeAttribute('hidden');
-        if (menuLogout) menuLogout.setAttribute('hidden','');
-      }
-    });
 
-    // Logout button redirect → index.html
-    document.addEventListener("DOMContentLoaded", () => {
-      const menuLogout = document.getElementById('menuLogout');
-      if(menuLogout){
-        menuLogout.querySelector('button').addEventListener('click', () => {
+      // ✅ Auth state check
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          // লগইন → notice hide
+          if (notice) notice.style.display = "none";
+          if (menuLogout) menuLogout.removeAttribute("hidden");
+        } else {
+          // লগআউট → notice show
+          if (notice) notice.style.display = "block";
+          if (menuLogout) menuLogout.setAttribute("hidden", "");
+        }
+      });
+
+      // Logout redirect → index.html
+      if (menuLogout) {
+        menuLogout.querySelector("button").addEventListener("click", () => {
           auth.signOut().then(() => {
             window.location.href = "index.html";
           }).catch(err => alert("❌ " + err.message));
