@@ -27,12 +27,10 @@
     </button>
     <p class="auth-foot">Don't have an account? <a href="signup.html">Sign Up</a></p>
   </div>
-</body>
-</html>
 
 <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
 
 <script>
   // 🔑 এখানে তোমার firebaseConfig বসাও
@@ -75,3 +73,5 @@
       .catch(err => alert("❌ " + err.message));
   });
 </script>
+</body>
+</html>
