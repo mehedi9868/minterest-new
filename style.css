@@ -231,3 +231,33 @@ footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px
   border:1px solid rgba(255,255,255,.2);
   z-index:2;
 }
+
+/* === Header + Menu + Profile (Injected) === */
+header{
+  position:sticky; top:0; z-index:60; backdrop-filter:blur(10px);
+  background:linear-gradient(180deg, rgba(11,13,16,.9), rgba(11,13,16,.7));
+  border-bottom:1px solid var(--border, #263241);
+  display:flex; align-items:center; gap:12px; padding:10px 14px;
+}
+.logo{ display:flex; align-items:center; gap:10px; }
+.logo-badge{ width:28px; height:28px; border-radius:8px; background:#1d2838; display:grid; place-items:center; color:#e7ecf3; font-weight:800; font-family:Inter,system-ui,sans-serif; }
+.brand{ font-weight:800; letter-spacing:.2px; }
+
+.user-info{ margin-left:auto; display:flex; align-items:center; gap:10px; padding-right:8px; }
+.user-photo{ width:36px; height:36px; border-radius:50%; border:1px solid var(--border, #263241); object-fit:cover; }
+.user-meta{ display:flex; flex-direction:column; line-height:1.05; }
+.user-name{ font-weight:700; font-size:13px; }
+.user-email{ font-size:12px; opacity:.8; }
+
+.hamburger{ width:40px; height:36px; margin-left:8px; border:1px solid var(--border, #263241); border-radius:10px;
+  background:#0e141c; display:grid; place-items:center; cursor:pointer; }
+.hamburger span{ display:block; width:18px; height:2px; background:var(--text, #e7ecf3); margin:2px 0; }
+
+.menu{ position:absolute; right:14px; top:56px; min-width:150px; background:#0e141c;
+  border:1px solid var(--border, #263241); border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.45);
+  padding:6px; display:flex; flex-direction:column; gap:6px; }
+.menu[aria-hidden="true"]{ display:none; }
+.menu-item{ width:100%; text-align:left; border:1px solid transparent; background:#0e141c; color:var(--text, #e7ecf3);
+  padding:10px 12px; border-radius:8px; font:600 13px/1 Inter,system-ui,sans-serif; cursor:pointer; }
+.menu-item:hover{ background:#121a23; }
+.menu a.menu-item{ text-decoration:none; display:block; }
