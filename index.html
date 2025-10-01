@@ -190,5 +190,62 @@
     }
   })();
   </script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ✅ তোমার Firebase Config অপরিবর্তিত রাখবে
+    const firebaseConfig = {
+      apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
+      authDomain: "minterest-beta.firebaseapp.com",
+      projectId: "minterest-beta",
+      storageBucket: "minterest-beta.firebasestorage.app",
+      messagingSenderId: "822920853423",
+      appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
+      measurementId: "G-J3WZ8EL2XY"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // ✅ শুধু Menu Dynamic Loader
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuContainer = document.querySelector("#headerMenu ul");
+
+      function loadMenu() {
+        if (!menuContainer) return;
+        menuContainer.innerHTML = "";
+
+        db.collection("settings").doc("general").get().then(doc => {
+          if (doc.exists) {
+            const menus = doc.data().menus || [];
+            menus.forEach(m => {
+              if (m.visible) {
+                const li = document.createElement("li");
+                li.innerHTML = `<a href="${m.link}">${m.icon} ${m.title}</a>`;
+                menuContainer.appendChild(li);
+              }
+            });
+
+            // ✅ Logout option শেষে থাকবে
+            const logoutLi = document.createElement("li");
+            logoutLi.id = "menuLogout";
+            logoutLi.innerHTML = `<button type="button">Log out</button>`;
+            menuContainer.appendChild(logoutLi);
+
+            logoutLi.querySelector("button").addEventListener("click", () => {
+              auth.signOut().then(() => window.location.href = "index.html");
+            });
+          }
+        });
+      }
+
+      loadMenu();
+    });
+  </script>
 </body>
 </html>

@@ -26,13 +26,9 @@
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <!-- ✅ Dropdown Menu -->
+      <!-- ✅ Dynamic Menu -->
       <div class="menu" id="headerMenu" hidden>
-        <ul>
-          <li><a href="index.html">🏠 Home</a></li>
-          <li><a href="dashboard.html">📊 Dashboard</a></li>
-          <li id="menuLogout" hidden><button type="button">Log out</button></li>
-        </ul>
+        <ul></ul>
       </div>
     </div>
   </header>
@@ -62,8 +58,10 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
 
   <script>
+    // ✅ তোমার Firebase config বসাও
     const firebaseConfig = {
       apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
       authDomain: "minterest-beta.firebaseapp.com",
@@ -73,35 +71,59 @@
       appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
       measurementId: "G-J3WZ8EL2XY"
     };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
     const userInfo = document.getElementById('user-info');
     const userPic = document.getElementById('user-pic');
     const userName = document.getElementById('user-name');
     const userEmail = document.getElementById('user-email');
-    const menuLogout = document.getElementById('menuLogout');
+    const menuContainer = document.querySelector("#headerMenu ul");
 
+    // ✅ Load Menu from Firestore
+    function loadMenu() {
+      menuContainer.innerHTML = "";
+      db.collection("settings").doc("general").get().then(doc => {
+        if (doc.exists) {
+          const menus = doc.data().menus || [];
+          menus.forEach(m => {
+            if (m.visible) {
+              const li = document.createElement("li");
+              li.innerHTML = `<a href="${m.link}">${m.icon} ${m.title}</a>`;
+              menuContainer.appendChild(li);
+            }
+          });
+
+          // Logout শেষে
+          const logoutLi = document.createElement("li");
+          logoutLi.id = "menuLogout";
+          logoutLi.innerHTML = `<button type="button">Log out</button>`;
+          menuContainer.appendChild(logoutLi);
+
+          logoutLi.querySelector("button").addEventListener("click", () => {
+            auth.signOut().then(() => window.location.href = "index.html");
+          });
+        }
+      });
+    }
+
+    // ✅ Auth State
     auth.onAuthStateChanged(user => {
       if (user) {
         userInfo.style.display = "flex";
         userPic.src = user.photoURL || "https://www.svgrepo.com/show/452030/user.svg";
         userName.textContent = user.displayName || "";
         userEmail.textContent = user.email || "";
-        menuLogout.removeAttribute("hidden");
       } else {
         userInfo.style.display = "none";
-        menuLogout.setAttribute("hidden","");
       }
     });
 
-    if (menuLogout) {
-      menuLogout.querySelector("button").addEventListener("click", () => {
-        auth.signOut().then(() => window.location.href = "index.html");
-      });
-    }
-
-    // Login Logic
+    // ✅ Form Submit
     const form = document.querySelector('.auth-form');
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -112,7 +134,7 @@
         .catch(err => alert("❌ " + err.message));
     });
 
-    // Google Login
+    // ✅ Google Login
     document.querySelector('.google-btn').addEventListener('click', () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
@@ -120,7 +142,7 @@
         .catch(err => alert("❌ " + err.message));
     });
 
-    // ✅ Menu Toggle Script
+    // ✅ Hamburger Toggle
     (function(){
       const burger = document.getElementById('hamburgerBtn');
       const menu = document.getElementById('headerMenu');
@@ -131,7 +153,7 @@
           else { menu.setAttribute('hidden',''); burger.setAttribute('aria-expanded','false'); }
         };
         burger.addEventListener('click', toggle);
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click',(e)=>{
           if(!menu.contains(e.target) && !burger.contains(e.target)){
             menu.setAttribute('hidden','');
             burger.setAttribute('aria-expanded','false');
@@ -139,6 +161,9 @@
         });
       }
     })();
+
+    // ✅ প্রথমবার menu load করো
+    loadMenu();
   </script>
 </body>
 </html>
