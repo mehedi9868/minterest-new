@@ -118,13 +118,11 @@
       // ✅ Auth state check
       auth.onAuthStateChanged(user => {
         if (user) {
-          // লগইন → notice hide
-          if (notice) notice.style.display = "none";
-          if (menuLogout) menuLogout.removeAttribute("hidden");
+          if (notice) notice.style.display = "none";     // hide notice
+          if (menuLogout) menuLogout.removeAttribute("hidden"); // show logout
         } else {
-          // লগআউট → notice show
-          if (notice) notice.style.display = "block";
-          if (menuLogout) menuLogout.setAttribute("hidden", "");
+          if (notice) notice.style.display = "block";    // show notice
+          if (menuLogout) menuLogout.setAttribute("hidden", ""); // hide logout
         }
       });
 
@@ -139,11 +137,15 @@
     });
   </script>
 
-  <!-- Header Menu -->
+  <!-- Header Menu + Reset -->
   <script>
   (function(){
     const burger = document.getElementById('hamburgerBtn');
     const menu = document.getElementById('headerMenu');
+    const menuReset = document.getElementById('menuReset');
+    const btnReset = document.getElementById('btnReset');
+
+    // Hamburger toggle
     if(burger && menu){
       const toggle = () => {
         const isHidden = menu.hasAttribute('hidden');
@@ -157,6 +159,19 @@
           burger.setAttribute('aria-expanded','false');
         }
       });
+    }
+
+    // ✅ Reset menu enable
+    if(menuReset){
+      if(typeof window.resetBoard === 'function' || btnReset){
+        menuReset.removeAttribute('hidden');
+        menuReset.querySelector('button').addEventListener('click', () => {
+          if(typeof window.resetBoard === 'function') window.resetBoard();
+          else if(btnReset) btnReset.click();
+        });
+      } else {
+        menuReset.setAttribute('hidden','');
+      }
     }
   })();
   </script>
