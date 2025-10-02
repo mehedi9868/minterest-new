@@ -46,7 +46,7 @@ body{ margin:0; color:var(--text); background:var(--bg);
 .toggle.active .option.video{ color:#091017 }
 
 /* Masonry */
-#grid{ column-count:3; column-gap:16px; padding:18px 0 80px }
+#grid{ column-count:1; column-gap:16px; padding:18px 0 80px }
 @media (min-width:860px){ #grid{ column-count:3 } }
 @media (min-width:1140px){ #grid{ column-count:4 } }
 
