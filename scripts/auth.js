@@ -14,20 +14,28 @@ const userPic   = document.getElementById('user-pic');
 const userName  = document.getElementById('user-name');
 const userEmail = document.getElementById('user-email');
 const fab       = document.getElementById('fab');
+const toggleBar = document.getElementById('toggleBar');
 
 // Auth state handler
 auth.onAuthStateChanged(user=>{
-  if(user){
+  const loggedIn = !!user;
+  // expose + event so অন্য স্ক্রিপ্ট জানতে পারে
+  window.appIsLoggedIn = loggedIn;
+  document.dispatchEvent(new CustomEvent('auth:state', { detail:{ loggedIn } }));
+
+  if(loggedIn){
     notice && (notice.style.display = "none");
     if(userInfo){ userInfo.style.display="flex"; }
     if(userPic)  userPic.src   = user.photoURL || "https://www.svgrepo.com/show/452030/user.svg";
     if(userName) userName.textContent = user.displayName || "";
     if(userEmail)userEmail.textContent = user.email || "";
     if(fab){ fab.disabled=false; fab.style.opacity="1"; }
+    if(toggleBar) toggleBar.style.display = "";           // ✅ টগলবার দেখাও
   }else{
     notice && (notice.style.display = "block");
     if(userInfo) userInfo.style.display="none";
     if(fab){ fab.disabled=true; fab.style.opacity="0.5"; }
+    if(toggleBar) toggleBar.style.display = "none";       // ✅ টগলবার লুকাও
   }
 });
 

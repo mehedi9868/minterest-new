@@ -19,7 +19,7 @@ body{ margin:0; color:var(--text); background:var(--bg);
   border-bottom:1px solid var(--border); padding:10px 16px; display:flex;
   align-items:center; justify-content:space-between }
 .app-header .logo{ font-weight:800; text-decoration:none; color:var(--text) }
-.app-header .logo.italic{ font-style:italic }
+.app-header .logo.italic{ font-style:bold }
 .logo-badge{ display:grid; place-items:center; width:40px; height:40px; border-radius:12px;
   background:linear-gradient(135deg, var(--brand), var(--brand2)); color:#091017 }
 .hamburger{ width:38px; height:34px; border:1px solid var(--border); background:transparent;
