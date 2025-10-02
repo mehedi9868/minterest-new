@@ -4,47 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up • Minterest</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles/main.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+
+  <!-- modules -->
+  <script type="module" src="scripts/config.js"></script>
+  <script type="module">
+    import { firebaseConfig } from './scripts/config.js';
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const form = document.querySelector('.auth-form');
+      form.addEventListener('submit',(e)=>{
+        e.preventDefault();
+        const email = form.querySelector('input[type="email"]').value;
+        const password = form.querySelector('input[type="password"]').value;
+        auth.createUserWithEmailAndPassword(email,password)
+          .then(()=>location.href='index.html')
+          .catch(err=>alert("❌ "+err.message));
+      });
+      document.querySelector('.google-btn').addEventListener('click', ()=>{
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).then(()=>location.href='index.html').catch(err=>alert("❌ "+err.message));
+      });
+    });
+  </script>
 </head>
 <body class="auth-body">
-
-  <!-- ✅ App Header -->
   <header class="app-header">
     <div class="header-left" style="display:flex; align-items:center; gap:8px;">
       <span class="logo-badge">Mi</span>
       <a href="index.html" class="logo italic">Minterest</a>
     </div>
     <div class="header-right">
-      <div id="user-info" class="user-info" style="display:none;">
-        <img id="user-pic" class="user-pic" src="" alt="User" />
-        <div class="user-text">
-          <span id="user-name"></span>
-          <span id="user-email"></span>
-        </div>
-      </div>
-      <!-- Hamburger -->
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <!-- ✅ Dynamic Menu -->
-      <div class="menu" id="headerMenu" hidden>
-        <ul></ul>
-      </div>
+      <div class="menu" id="headerMenu" hidden><ul></ul></div>
     </div>
   </header>
 
-  <!-- Signup Form -->
   <div class="auth-container">
     <h2 class="auth-title">Create Account</h2>
     <form class="auth-form">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" placeholder="Enter your email" required>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" placeholder="Create a password" required>
-      </div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="Enter your email" required></div>
+      <div class="form-group"><label>Password</label><input type="password" placeholder="Create a password" required></div>
       <button type="submit" class="btn primary full">Sign Up</button>
     </form>
     <div class="divider"><span>or</span></div>
@@ -55,115 +63,6 @@
     <p class="auth-foot">Already have an account? <a href="login.html">Login</a></p>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
-
-  <script>
-    // ✅ তোমার Firebase config বসাও
-    const firebaseConfig = {
-      apiKey: "AIzaSyBP2mcTImq6j_IqtUBi-UmfbHV_2pc1Zuw",
-      authDomain: "minterest-beta.firebaseapp.com",
-      projectId: "minterest-beta",
-      storageBucket: "minterest-beta.firebasestorage.app",
-      messagingSenderId: "822920853423",
-      appId: "1:822920853423:web:9a426afa6fb3b8514ae15a",
-      measurementId: "G-J3WZ8EL2XY"
-    };
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    const userInfo = document.getElementById('user-info');
-    const userPic = document.getElementById('user-pic');
-    const userName = document.getElementById('user-name');
-    const userEmail = document.getElementById('user-email');
-    const menuContainer = document.querySelector("#headerMenu ul");
-
-    // ✅ Load Menu from Firestore
-    function loadMenu() {
-      menuContainer.innerHTML = "";
-      db.collection("settings").doc("general").get().then(doc => {
-        if (doc.exists) {
-          const menus = doc.data().menus || [];
-          menus.forEach(m => {
-            if (m.visible) {
-              const li = document.createElement("li");
-              li.innerHTML = `<a href="${m.link}">${m.icon} ${m.title}</a>`;
-              menuContainer.appendChild(li);
-            }
-          });
-
-          // Logout শেষে
-          const logoutLi = document.createElement("li");
-          logoutLi.id = "menuLogout";
-          logoutLi.innerHTML = `<button type="button">Log out</button>`;
-          menuContainer.appendChild(logoutLi);
-
-          logoutLi.querySelector("button").addEventListener("click", () => {
-            auth.signOut().then(() => window.location.href = "index.html");
-          });
-        }
-      });
-    }
-
-    // ✅ Auth State
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        userInfo.style.display = "flex";
-        userPic.src = user.photoURL || "https://www.svgrepo.com/show/452030/user.svg";
-        userName.textContent = user.displayName || "";
-        userEmail.textContent = user.email || "";
-      } else {
-        userInfo.style.display = "none";
-      }
-    });
-
-    // ✅ Form Submit (Sign Up)
-    const form = document.querySelector('.auth-form');
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = form.querySelector('input[type="email"]').value;
-      const password = form.querySelector('input[type="password"]').value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => window.location.href = "index.html")
-        .catch(err => alert("❌ " + err.message));
-    });
-
-    // ✅ Google Signup/Login
-    document.querySelector('.google-btn').addEventListener('click', () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(() => window.location.href = "index.html")
-        .catch(err => alert("❌ " + err.message));
-    });
-
-    // ✅ Hamburger Toggle
-    (function(){
-      const burger = document.getElementById('hamburgerBtn');
-      const menu = document.getElementById('headerMenu');
-      if(burger && menu){
-        const toggle = () => {
-          const isHidden = menu.hasAttribute('hidden');
-          if(isHidden){ menu.removeAttribute('hidden'); burger.setAttribute('aria-expanded','true'); }
-          else { menu.setAttribute('hidden',''); burger.setAttribute('aria-expanded','false'); }
-        };
-        burger.addEventListener('click', toggle);
-        document.addEventListener('click',(e)=>{
-          if(!menu.contains(e.target) && !burger.contains(e.target)){
-            menu.setAttribute('hidden','');
-            burger.setAttribute('aria-expanded','false');
-          }
-        });
-      }
-    })();
-
-    // ✅ প্রথমবার menu load করো
-    loadMenu();
-  </script>
+  <script type="module" src="scripts/menu.js"></script>
 </body>
 </html>
