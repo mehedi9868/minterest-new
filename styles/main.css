@@ -58,10 +58,10 @@ body{ margin:0; color:var(--text); background:var(--bg);
 .card img,.card video{ width:100%; display:block }
 
 /* Number badge + video badge */
-/*.num-badge{ position:absolute; top:10px; left:10px; background:rgba(0,0,0,.6); color:#fff;
-  font:700 12px/1 Inter; padding:6px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.2); z-index:2 }
+.num-badge{ position:absolute; top:10px; left:10px; background:rgba(0,0,0,.6); color:#fff;
+  font:700 12px/1 Inter; padding:6px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.2); z-index:2; display:none;}
 .badge{ position:absolute; right:10px; bottom:10px; background:rgba(0,0,0,.55); color:#fff;
-  font-size:14px; padding:3px 10px; border-radius:999px; font-weight:700; letter-spacing:.2px }*/
+  font-size:14px; padding:3px 10px; border-radius:999px; font-weight:700; letter-spacing:.2px; display:none; }
 
 /* Fixed aspect ratio pattern (repeat 1..5) */
 .card img.size-1{ aspect-ratio:2/3; object-fit:cover }
