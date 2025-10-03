@@ -123,7 +123,7 @@ async function handleAdd(){
   try{
     const added = await listFolderFiles(folderId);
     filterCards(currentView);
-    showToast(added===0 ? "ফাইল পাওয়া যায়নি 💔" : `${added} টি নতুন আইটেম যোগ হয়েছে`);
+    showToast(added===0 ? "নতুন ফাইল পাওয়া যায়নি 💔" : `${added} টি নতুন আইটেম যোগ হয়েছে`);
   }catch(err){ console.error(err); showToast("লোড করতে সমস্যা (public folder? API key?)"); }
 }
 
