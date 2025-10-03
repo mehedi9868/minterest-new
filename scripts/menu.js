@@ -1,12 +1,10 @@
 /**
- * scripts/menu.js — ডুপ্লিকেট প্রতিরোধসহ
- * - Duplicate script load guard (window.__menuScriptLoaded)
- * - Concurrency guard (isBuilding + buildVersion)
- * - Firestore menus + Reset + Login/Logout
+ * scripts/menu.js
+ * -------------------
+ * ডাইনামিক মেনু বিল্ড করে (Firestore + Reset + Refresh + Login/Logout)
  */
 
 if (window.__menuScriptLoaded) {
-  // ⚠️ এই পেজে menu.js আগেই লোড ছিল — দ্বিতীয়বার লোড বন্ধ করি
   console.warn("menu.js already loaded; skipping duplicate init.");
 } else {
   window.__menuScriptLoaded = true;
@@ -17,55 +15,53 @@ if (window.__menuScriptLoaded) {
   const list   = menu?.querySelector('ul');
 
   // ---------- Menu toggle ----------
-  function toggleMenu(){
-    if(!menu) return;
+  function toggleMenu() {
+    if (!menu) return;
     const isHidden = menu.hasAttribute('hidden');
-    isHidden ? menu.removeAttribute('hidden') : menu.setAttribute('hidden','');
+    isHidden ? menu.removeAttribute('hidden') : menu.setAttribute('hidden', '');
     burger?.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
   }
   burger?.addEventListener('click', toggleMenu);
 
-  document.addEventListener('click', (e)=>{
-    if(menu && !menu.contains(e.target) && !burger?.contains(e.target)){
-      menu.setAttribute('hidden','');
-      burger?.setAttribute('aria-expanded','false');
+  document.addEventListener('click', (e) => {
+    if (menu && !menu.contains(e.target) && !burger?.contains(e.target)) {
+      menu.setAttribute('hidden', '');
+      burger?.setAttribute('aria-expanded', 'false');
     }
   });
 
   // ---------- Concurrency guards ----------
-  let isBuilding = false;      // একই সময়ে দ্বিতীয় build ঠেকাতে
-  let buildVersion = 0;        // সর্বশেষ build চিহ্নিত করতে (race condition এ কাজে লাগবে)
+  let isBuilding = false;
+  let buildVersion = 0;
 
-  function buildMenu(){
-    if(!list) return;
+  function buildMenu() {
+    if (!list) return;
 
-    // যদি আগের build চলছে, নতুনটা ইগনোর করি
-    if (isBuilding) {
-      // চাইলে: ডিবাউন্স করে সামান্য দেরিতে আবার চেষ্টা করো
-      // setTimeout(buildMenu, 100);
-      return;
-    }
+    if (isBuilding) return;
 
     isBuilding = true;
-    const myVersion = ++buildVersion; // এই build-এর সিরিয়াল
+    const myVersion = ++buildVersion;
 
-    // প্রথমে ক্লিন স্লেট
     list.innerHTML = "";
 
     const db = window.appDB;
 
-    // Reset + Login/Logout যোগ করার কমন ফাংশন
     const afterConfigured = () => {
-      // যদি এই সময়ের মধ্যে নতুন কোনো build শুরু হয়ে থাকে, এই রেন্ডার স্কিপ
       if (myVersion !== buildVersion) { isBuilding = false; return; }
 
-      // (১) Reset
+      // (১) Reset বাটন
       const resetLi = document.createElement('li');
       resetLi.innerHTML = `<button type="button">Reset</button>`;
       resetLi.querySelector('button').addEventListener('click', ()=> window.resetBoard?.());
       list.appendChild(resetLi);
 
-      // (২) Login/Logout
+      // (২) Refresh বাটন ✅
+      const refreshLi = document.createElement('li');
+      refreshLi.innerHTML = `<button type="button">Refresh</button>`;
+      refreshLi.querySelector('button').addEventListener('click', ()=> window.refreshPage?.());
+      list.appendChild(refreshLi);
+
+      // (৩) Login / Logout
       const isLoggedIn =
         typeof window.appIsLoggedIn === 'boolean'
           ? window.appIsLoggedIn
@@ -82,22 +78,20 @@ if (window.__menuScriptLoaded) {
         list.appendChild(inLi);
       }
 
-      isBuilding = false; // ✅ build done
+      isBuilding = false;
     };
 
-    // Firestore না থাকলে সরাসরি fallback
+    // Firestore config থাকলে লোড করো
     if (!db) { afterConfigured(); return; }
 
-    // Firestore থেকে কনফিগ মেনু লোড
     db.collection('settings').doc('general').get()
-      .then(doc=>{
-        // নতুন build শুরু হয়ে গেলে, এই রেজাল্ট ইগনোর করো
+      .then(doc => {
         if (myVersion !== buildVersion) { isBuilding = false; return; }
 
         if (doc.exists) {
           const menus = doc.data().menus || [];
-          menus.forEach(m=>{
-            if(m.visible){
+          menus.forEach(m => {
+            if (m.visible) {
               const li = document.createElement('li');
               li.innerHTML = `<a href="${m.link}">${m.icon || ""} ${m.title}</a>`;
               list.appendChild(li);
@@ -106,15 +100,14 @@ if (window.__menuScriptLoaded) {
         }
         afterConfigured();
       })
-      .catch(()=>{
-        // এরর হলেও বেসিক আইটেম দাও
+      .catch(() => {
         afterConfigured();
       });
   }
 
-  // প্রথমবার বানাও
+  // প্রথমবার মেনু বিল্ড করো
   buildMenu();
 
-  // auth স্টেট বদলালে আবার বানাও (e.g., লগইন/লগআউট)
+  // auth state পরিবর্তন হলে মেনু রিফ্রেশ
   document.addEventListener('auth:state', buildMenu);
 }
