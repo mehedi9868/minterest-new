@@ -1,4 +1,6 @@
-const CACHE_NAME = "minterest-cache-v2"; // 🔹 এখানে version পরিবর্তন করো
+// ✅ Auto Versioned Service Worker for Minterest PWA
+const CACHE_NAME = "minterest-cache-" + new Date().getTime(); // 🔹 Auto version by timestamp
+
 const FILES_TO_CACHE = [
   "index.html",
   "login.html",
@@ -13,16 +15,16 @@ const FILES_TO_CACHE = [
   "manifest.json"
 ];
 
-// ✅ Install event
+// 🔹 Install event: নতুন ক্যাশ তৈরি
 self.addEventListener("install", (event) => {
-  console.log("✅ Service Worker Installed");
+  console.log("✅ Service Worker Installed:", CACHE_NAME);
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
   );
-  self.skipWaiting(); // নতুন service worker কে সাথে সাথে সক্রিয় করে
+  self.skipWaiting(); // সাথে সাথে নতুন version সক্রিয় হবে
 });
 
-// ✅ Activate event — পুরনো cache delete করবে
+// 🔹 Activate event: পুরনো ক্যাশ ডিলিট
 self.addEventListener("activate", (event) => {
   console.log("⚡ Activating new service worker...");
   event.waitUntil(
@@ -37,12 +39,19 @@ self.addEventListener("activate", (event) => {
       )
     )
   );
-  self.clients.claim(); // নতুন SW কে control নিতে দেয়
+  self.clients.claim(); // নতুন SW control নিবে
 });
 
-// ✅ Fetch event
+// 🔹 Fetch event: ক্যাশ থেকে বা নেটওয়ার্ক থেকে ফাইল পরিবেশন
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((res) => res || fetch(event.request))
+    caches.match(event.request).then((res) => {
+      if (res) {
+        console.log("📦 Loaded from cache:", event.request.url);
+        return res;
+      }
+      console.log("🌐 Fetched from network:", event.request.url);
+      return fetch(event.request);
+    })
   );
 });
