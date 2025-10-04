@@ -1,157 +1,128 @@
-// scripts/settings.js — Firestore-backed settings (clean version, no localStorage)
-// Requires: firebase-app-compat.js + firebase-firestore-compat.js loaded in settings.html
-// Imports runtime helpers / defaults
-import { firebaseConfig, getRuntimeConfigAsync } from "./config.js";
+// scripts/settings.js
+// Compat SDK v11 ধরে লেখা (firebase.* গ্লোবাল রয়েছে)
+// config.js আগে লোড হয় বলে ধরে নিচ্ছি। প্রয়োজনে সেফ-গার্ড:
+import { firebaseConfig } from './config.js';
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-/* -----------------------------
-   Firebase bootstrap (compat)
-------------------------------*/
-function ensureFirebaseApp() {
-  // idempotent init
-  if (!firebase.apps || !firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  return firebase.app();
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// DOM refs
+const form   = document.getElementById('settings-form');
+const msg    = document.getElementById('msg');
+const diag   = document.getElementById('diag');
+const btnSave= document.getElementById('btnSave');
+const btnPing= document.getElementById('btnPing');
+const guard  = document.getElementById('guard-msg');
+
+const fields = ['images','videos','favorites','apiKey','pwd1','pwd2'];
+
+function setFormEnabled(enabled) {
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !enabled;
+  });
+  btnSave.disabled = !enabled;
 }
-function getDb() {
-  ensureFirebaseApp();
-  return firebase.firestore();
+
+function showForm(show) {
+  form.style.display = show ? '' : 'none';
+  document.querySelector('.settings-actions').style.display = show ? '' : 'none';
 }
 
-/* -----------------------------
-   DOM refs
-------------------------------*/
-const form   = document.getElementById("settings-form");
-const msg    = document.getElementById("msg");
-const diag   = document.getElementById("diag");
-const btnSave= document.getElementById("btnSave");
-const btnPing= document.getElementById("btnPing");
+function showGuard(show, text) {
+  if (!guard) return;
+  guard.style.display = show ? '' : 'none';
+  if (text) guard.querySelector('p').textContent = text;
+}
 
-// Shortcuts to inputs (querying once)
-const $ = (sel) => form.querySelector(sel);
-const inputs = {
-  images:    $("#images"),
-  videos:    $("#videos"),
-  favorites: $("#favorites"),
-  apiKey:    $("#apiKey"),
-  pwd1:      $("#pwd1"),
-  pwd2:      $("#pwd2"),
-};
-
-/* -----------------------------
-   UI helpers
-------------------------------*/
-function showMsg(text) {
+function toast(text, ok=true) {
   msg.textContent = text;
-  msg.style.display = "block";
-  clearTimeout(showMsg._t);
-  showMsg._t = setTimeout(() => (msg.style.display = "none"), 3500);
-}
-function showDiag(line) {
-  if (!line) return;
-  diag.textContent = (diag.textContent ? `${diag.textContent}\n` : "") + line;
-  diag.style.display = "block";
-}
-function setBusy(busy) {
-  btnSave.disabled = busy;
-  btnPing.disabled = busy;
-  Object.values(inputs).forEach(i => (i.disabled = busy));
+  msg.style.display = 'block';
+  msg.style.color = ok ? 'var(--ok, #9effa5)' : 'var(--warn, #ff9e9e)';
+  setTimeout(()=>{ msg.style.display='none'; }, 3500);
 }
 
-/* -----------------------------
-   Core: load & save
-------------------------------*/
-async function fillForm() {
+async function isAdmin(uid) {
+  if (!uid) return false;
+  const doc = await db.collection('admins').doc(uid).get();
+  return doc.exists; // admin হলে true
+}
+
+async function loadSettingsIntoForm() {
+  const snap = await db.collection('app').doc('settings').get();
+  const data = snap.exists ? snap.data() : {};
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = data[id] || '';
+  });
+}
+
+async function saveSettingsFromForm() {
+  const payload = {};
+  fields.forEach(id => payload[id] = (document.getElementById(id)?.value || '').trim());
+
+  await db.collection('app').doc('settings').set(payload, { merge: true });
+}
+
+// -------- Event wiring --------
+btnSave?.addEventListener('click', async () => {
   try {
-    setBusy(true);
-    // Effective config = Firestore → (fallback) defaults
-    const cfg = await getRuntimeConfigAsync();
-
-    inputs.images.value    = cfg.DEFAULT_FEEDS?.images    || "";
-    inputs.videos.value    = cfg.DEFAULT_FEEDS?.videos    || ""
-    inputs.favorites.value = cfg.DEFAULT_FEEDS?.favorites || "";
-    inputs.apiKey.value    = cfg.DRIVE_API_KEY            || "";
-    inputs.pwd1.value      = cfg.REQUIRED_PASSWORD        || "";
-    inputs.pwd2.value      = cfg.ANOTHER_PASSWORD         || "";
-
-    showDiag(`✅ Loaded config (projectId: ${firebaseConfig.projectId})`);
-  } catch (err) {
-    console.error(err);
-    showDiag("❌ fillForm error: " + (err.message || err));
+    setFormEnabled(false);
+    await saveSettingsFromForm();
+    toast('✅ Settings saved');
+  } catch (e) {
+    console.error(e);
+    toast('❌ Failed to save: ' + e.message, false);
   } finally {
-    setBusy(false);
+    setFormEnabled(true);
   }
-}
-
-function readPayloadFromForm() {
-  // Trim URL/text; empty => null (so Firestore merge clears or ignores)
-  const norm = (v) => (v && v.trim()) || null;
-  return {
-    DRIVE_API_KEY:     norm(inputs.apiKey.value),
-    REQUIRED_PASSWORD: inputs.pwd1.value || null,
-    ANOTHER_PASSWORD:  inputs.pwd2.value || null,
-    DEFAULT_FEEDS: {
-      images:    norm(inputs.images.value),
-      videos:    norm(inputs.videos.value),
-      favorites: norm(inputs.favorites.value),
-    },
-  };
-}
-
-async function saveSettings() {
-  try {
-    setBusy(true);
-    const db = getDb();
-    const payload = readPayloadFromForm();
-    await db.collection("settings").doc("app").set(payload, { merge: true });
-    showMsg("✅ Saved to Firestore");
-    showDiag("✅ Write OK → settings/app");
-  } catch (err) {
-    console.error(err);
-    showMsg("❌ Save failed");
-    showDiag("❌ Save failed: " + (err.code || "") + " " + (err.message || err));
-  } finally {
-    setBusy(false);
-  }
-}
-
-async function ping() {
-  try {
-    setBusy(true);
-    const db = getDb();
-    const ts = Date.now();
-    await db.collection("settings").doc("app").set({ _ping: ts }, { merge: true });
-    const snap = await db.collection("settings").doc("app").get();
-    showDiag("✅ Ping ok. _ping = " + (snap.data()?._ping));
-  } catch (err) {
-    showDiag("❌ Ping failed: " + (err.code || "") + " " + (err.message || err));
-  } finally {
-    setBusy(false);
-  }
-}
-
-/* -----------------------------
-   Events
-------------------------------*/
-btnSave.addEventListener("click", (e) => { e.preventDefault(); saveSettings(); });
-btnPing.addEventListener("click", (e) => { e.preventDefault(); ping(); });
-
-// Prevent Enter from accidentally submitting & reloading
-form.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") e.preventDefault();
 });
 
-document.addEventListener("DOMContentLoaded", fillForm);
+btnPing?.addEventListener('click', async () => {
+  const start = Date.now();
+  diag.style.display = 'block';
+  diag.textContent = 'Pinging Firestore...';
+  try {
+    // lightweight read
+    await db.collection('app').doc('settings').get();
+    const ms = Date.now() - start;
+    diag.textContent = `✅ Firestore OK ~${ms}ms`;
+  } catch (e) {
+    diag.textContent = '❌ ' + e.message;
+  }
+});
 
-/* -----------------------------
-   (Optional) Auth guard
-   If you later protect rules with `request.auth != null`,
-   uncomment below to force login before editing settings.
-------------------------------*/
-// if (firebase.auth) {
-//   firebase.auth().onAuthStateChanged((user) => {
-//     if (!user) {
-//       location.href = "login.html?next=settings.html";
-//     }
-//   });
-// }
+// -------- Auth gate --------
+auth.onAuthStateChanged(async (user) => {
+  try {
+    if (!user) {
+      // not logged in
+      showForm(false);
+      setFormEnabled(false);
+      showGuard(true, 'এই পেজটি আপডেট করতে অ্যাডমিন একাউন্টে লগইন করুন।');
+      return;
+    }
+
+    const ok = await isAdmin(user.uid);
+    if (!ok) {
+      // logged in but not admin
+      showForm(false);
+      setFormEnabled(false);
+      showGuard(true, 'আপনার একাউন্টে অ্যাডমিন অনুমতি নেই। অ্যাডমিন একাউন্টে লগইন করুন।');
+      return;
+    }
+
+    // admin: allow + load current values
+    showGuard(false);
+    showForm(true);
+    setFormEnabled(true);
+    await loadSettingsIntoForm();
+
+  } catch (e) {
+    console.error(e);
+    toast('❌ Error: ' + e.message, false);
+    showForm(false);
+    showGuard(true, 'লোড করতে সমস্যা হয়েছে—পরে চেষ্টা করুন।');
+  }
+});

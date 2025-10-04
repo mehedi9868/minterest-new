@@ -12,7 +12,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
   <!-- auth দরকার হলে আনকমেন্ট করুন -->
-  <!-- <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script> -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
 
   <style>
     /* -------- Settings page polish -------- */
@@ -101,6 +101,17 @@
         <p id="msg" class="hint" style="display:none"></p>
         <div id="diag" class="diag"></div>
       </div>
+
+      <div id="guard-msg" class="auth-notice" style="display:none; margin-top:12px;">
+  <div class="auth-card">
+    <h2>Admin access required 🔐</h2>
+    <p>Please login to admin account.</p>
+    <div class="actions">
+      <a href="login.html" class="btn primary">Login</a>
+    </div>
+  </div>
+</div>
+
     </section>
   </main>
 
