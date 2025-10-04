@@ -1,4 +1,4 @@
-/* styles/main.css — Dark gallery UI + auth pages */
+/* styles/main.css — Dark gallery UI + auth pages (patched) */
 
 /* Theme */
 :root{
@@ -57,11 +57,18 @@ body{ margin:0; color:var(--text); background:var(--bg);
 .card:hover{ transform:translateY(-2px); background:var(--card-hover) }
 .card img,.card video{ width:100%; display:block }
 
-/* Number badge + video badge */
-.num-badge{ position:absolute; top:10px; left:10px; background:rgba(0,0,0,.6); color:#fff;
-  font:700 12px/1 Inter; padding:6px 9px; border-radius:999px; border:1px solid rgba(255,255,255,.2); z-index:2; display:none;}
-.badge{ position:absolute; right:10px; bottom:10px; background:rgba(0,0,0,.55); color:#fff;
-  font-size:14px; padding:3px 10px; border-radius:999px; font-weight:700; letter-spacing:.2px; display:none; }
+/* --- HIDE any number badge / DDO or video tags on cards --- */
+.num-badge,
+.badge,
+.ddo,
+.card .badge,
+.card .number-badge,
+.card [data-badge],
+[data-role="badge"],
+[data-type="badge"]{
+  display:none !important;
+  visibility:hidden !important;
+}
 
 /* Fixed aspect ratio pattern (repeat 1..5) */
 .card img.size-1{ aspect-ratio:2/3; object-fit:cover }
@@ -136,3 +143,31 @@ body{ margin:0; color:var(--text); background:var(--bg);
 .google-icon{ width:20px; height:20px }
 .auth-foot{ margin-top:18px; font-size:14px; color:var(--muted); text-align:center }
 footer{ text-align:center; color:var(--muted); padding:30px 16px; border-top:1px solid var(--border) }
+
+/* video Card styles*/
+/* --- Centered transparent-look video icon overlay --- */
+.video-icon-overlay{
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  pointer-events:none; /* লিঙ্কে ক্লিক বাধা দেবে না */
+}
+
+.video-icon-overlay svg{
+  width:64px; height:64px;
+  transition:transform .18s ease, opacity .18s ease;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.35));
+  opacity:0.96;
+}
+
+.card:hover .video-icon-overlay svg{
+  transform: scale(1.05);
+  opacity:1;
+}
+
+/* যদি খুব হাই-কন্ট্রাস্ট থাম্ব হয়, একটু ব্যাকড্রপ ব্লার চাইলে (সাপোর্টেড ব্রাউজারে) */
+@supports (backdrop-filter: blur(2px)) {
+  .video-icon-overlay{
+    backdrop-filter: blur(1.5px) saturate(120%);
+  }
+}
+/* video Card styles*/

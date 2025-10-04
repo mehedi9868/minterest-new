@@ -1,5 +1,5 @@
-// scripts/app.js
-import { DRIVE_API_KEY, REQUIRED_PASSWORD, ANOTHER_PASSWORD, DEFAULT_DRIVE_URL } from "./config.js";
+// scripts/app.js (patched: remove badges; support 3 default feeds)
+import { DRIVE_API_KEY, REQUIRED_PASSWORD, ANOTHER_PASSWORD, DEFAULT_DRIVE_URL, DEFAULT_FEEDS } from "./config.js";
 
 /* ---------- State & refs ---------- */
 let grid, toast, overlay, pwdInput, mediaToggle, fab;
@@ -19,6 +19,7 @@ function showSuccessOverlay(){ const el=document.getElementById("success-overlay
 
 function getFolderIdFromUrl(url){
   try{
+    if(!url) return null;
     const u = new URL(url);
     let m = u.pathname.match(/\/folders\/([a-zA-Z0-9_-]+)/); if(m) return m[1];
     const id = u.searchParams.get("id"); if(id) return id;
@@ -58,9 +59,15 @@ function syncToggle(){ if(!mediaToggle) return; mediaToggle.classList.toggle("ac
 function filterCards(type){ currentView = type; grid?.querySelectorAll(".card").forEach(c=>{ c.style.display = (type==="all" || c.dataset.type===type) ? "" : "none"; }); }
 
 /* ---------- Drive list & render ---------- */
-async function listFolderFiles(folderId){
+async function listFolderFiles(folderId, typeFilter /* 'image' | 'video' | null */){
   const base='https://www.googleapis.com/drive/v3/files';
-  const q = encodeURIComponent(`'${folderId}' in parents and (mimeType contains 'image/' or mimeType contains 'video/') and trashed = false`);
+
+  // Build query: filter images/videos as requested
+  let typeClause = "(mimeType contains 'image/' or mimeType contains 'video/')";
+  if(typeFilter === 'image') typeClause = "(mimeType contains 'image/')";
+  if(typeFilter === 'video') typeClause = "(mimeType contains 'video/')";
+
+  const q = encodeURIComponent(`'${folderId}' in parents and ${typeClause} and trashed = false`);
   let pageToken = '', added = 0;
   const all = [];
 
@@ -73,7 +80,7 @@ async function listFolderFiles(folderId){
     pageToken = data.nextPageToken || '';
   }while(pageToken);
 
-  // Prefer first item as image
+  // Prefer first item as image if we have a mix (kept from original, harmless)
   const firstImgIdx = all.findIndex(f => (f.mimeType||"").startsWith("image/"));
   const ordered = firstImgIdx>0 ? [all[firstImgIdx], ...all.filter((_,i)=>i!==firstImgIdx)] : all;
 
@@ -82,6 +89,9 @@ async function listFolderFiles(folderId){
   return added;
 }
 
+// scripts/app.js (only the renderCard function changed to add a centered video icon)
+// ... আপনার আগের ইমপোর্ট/স্টেট/ফাংশনগুলো একই রাখুন ...
+
 function renderCard(file){
   if(!grid) return;
   const isVideo = (file.mimeType||"").startsWith("video/");
@@ -89,10 +99,7 @@ function renderCard(file){
   card.className = "card";
   card.dataset.type = isVideo ? "video" : "image";
 
-  const badgeNum = document.createElement('div');
-  badgeNum.className = 'num-badge';
-  badgeNum.textContent = String(renderCount+1);
-  card.appendChild(badgeNum);
+  // (আগের মতোই) — কোন নাম্বার/ডিডিও ব্যাজ যোগ করা হচ্ছে না
 
   const a = document.createElement("a");
   a.href = file.webViewLink || "#"; a.target="_blank"; a.rel="noopener";
@@ -104,27 +111,59 @@ function renderCard(file){
   a.appendChild(img);
   card.appendChild(a);
 
-  if(isVideo){ const label = document.createElement("div"); label.className="badge"; label.textContent="ভিডিও"; card.appendChild(label); }
+  // ✅ নতুন অংশ: ভিডিও হলে মাঝখানে ট্রান্সপারেন্ট-লুক আইকন
+  if (isVideo) {
+    const iconWrap = document.createElement("div");
+    iconWrap.className = "video-icon-overlay";
+    iconWrap.innerHTML = `
+      <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <!-- soft transparent circle -->
+        <circle cx="32" cy="32" r="22" fill="#000" fill-opacity="0.35" />
+        <circle cx="32" cy="32" r="22" fill="none" stroke="#fff" stroke-opacity="0.85" stroke-width="1.4"/>
+        <!-- play triangle -->
+        <path d="M28 23 L28 41 L44 32 Z" fill="#fff" fill-opacity="0.92" />
+      </svg>
+    `;
+    card.appendChild(iconWrap);
+  }
 
   grid.appendChild(card);
   renderCount++;
   observer.observe(card);
 }
 
+
 /* ---------- UI actions ---------- */
 async function handleAdd(){
   const pwd = (pwdInput?.value || "");
   if(pwd !== REQUIRED_PASSWORD && pwd !== ANOTHER_PASSWORD){ showToast("ভুল পাসওয়ার্ড ⚠️"); return; }
   showSuccessOverlay();
-  const folderId = getFolderIdFromUrl(DEFAULT_DRIVE_URL);
-  if(!folderId){ showToast("ডিফল্ট ফোল্ডার ভুল/নেই"); return; }
+
+  // Load from 3 default feeds: images, videos, favorites
+  const feeds = [
+    { url: DEFAULT_FEEDS?.images || DEFAULT_DRIVE_URL, type: 'image' },
+    { url: DEFAULT_FEEDS?.videos || DEFAULT_DRIVE_URL, type: 'video' },
+    { url: DEFAULT_FEEDS?.favorites || null, type: null } // favorites can have mixed types
+  ];
+
   closeModal();
   showToast("Loading…");
+
+  let totalAdded = 0;
   try{
-    const added = await listFolderFiles(folderId);
+    for(const f of feeds){
+      if(!f.url) continue;
+      const folderId = getFolderIdFromUrl(f.url);
+      if(!folderId) continue;
+      const added = await listFolderFiles(folderId, f.type);
+      totalAdded += added;
+    }
     filterCards(currentView);
-    showToast(added===0 ? "নতুন ফাইল পাওয়া যায়নি 💔" : `${added} টি নতুন আইটেম যোগ হয়েছে`);
-  }catch(err){ console.error(err); showToast("লোড করতে সমস্যা (public folder? API key?)"); }
+    showToast(totalAdded===0 ? "নতুন ফাইল পাওয়া যায়নি 💔" : `${totalAdded} টি নতুন আইটেম যোগ হয়েছে`);
+  }catch(err){
+    console.error(err);
+    showToast("লোড করতে সমস্যা (public folder? API key?)");
+  }
 }
 
 /* ---------- Boot ---------- */
@@ -142,11 +181,17 @@ window.addEventListener("DOMContentLoaded", ()=>{
   fab?.addEventListener("click", openModal);
 
   if(mediaToggle){
-    const apply = ()=>{ const type = mediaToggle.classList.contains("active") ? "video" : "image"; filterCards(type); mediaToggle.setAttribute("aria-checked", mediaToggle.classList.contains("active")?"true":"false"); };
+    const apply = ()=>{
+      const type = mediaToggle.classList.contains("active") ? "video" : "image";
+      filterCards(type);
+      mediaToggle.setAttribute("aria-checked", mediaToggle.classList.contains("active")?"true":"false");
+    };
     mediaToggle.addEventListener("click", ()=>{ mediaToggle.classList.toggle("active"); apply(); });
-    mediaToggle.addEventListener("keydown", (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); mediaToggle.classList.toggle('active'); apply(); }
+    mediaToggle.addEventListener("keydown", (e)=>{
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); mediaToggle.classList.toggle('active'); apply(); }
       if(e.key==='ArrowLeft'){ mediaToggle.classList.remove('active'); apply(); }
-      if(e.key==='ArrowRight'){ mediaToggle.classList.add('active'); apply(); }});
+      if(e.key==='ArrowRight'){ mediaToggle.classList.add('active'); apply(); }
+    });
   }
 
   loadBoard(); filterCards(currentView); syncToggle();
