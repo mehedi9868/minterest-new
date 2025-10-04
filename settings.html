@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Settings • Minterest</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles/main.css">
+
+  <!-- Firebase compat v11 (আপনার অন্য পেজগুলোর মতোই) -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+  <!-- auth দরকার হলে আনকমেন্ট করুন -->
+  <!-- <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script> -->
+
+  <style>
+    /* -------- Settings page polish -------- */
+    .settings-wrap{
+      min-height: 100vh; display: grid; place-items: center;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,.15), transparent 60%),
+                  radial-gradient(1200px 600px at 120% 110%, rgba(38,228,167,.12), transparent 60%);
+      padding: 32px 16px;
+    }
+    .settings-card{
+      width: min(780px, 96vw);
+      background: linear-gradient(180deg, rgba(10,14,20,.86), rgba(10,14,20,.86));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 12px 50px rgba(0,0,0,.45);
+      overflow: hidden;
+    }
+    .settings-head{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 18px 20px; border-bottom:1px solid var(--border); background: var(--panel);
+    }
+    .settings-title{ margin:0; font-size:18px; font-weight:800 }
+    .settings-body{ padding: 20px }
+    .settings-grid{
+      display: grid; grid-template-columns: 180px 1fr; gap: 12px 16px; align-items: center;
+    }
+    @media (max-width: 640px){
+      .settings-grid{ grid-template-columns: 1fr; }
+    }
+    .settings-grid label{
+      color: var(--muted); font-size: 13px;
+    }
+    .settings-grid input{
+      width: 100%; padding: 11px 12px; border:1px solid var(--border);
+      border-radius: 10px; background:#0c1219; color:var(--text); outline: none;
+    }
+    .settings-actions{
+      display:flex; gap:10px; justify-content:flex-end; margin-top:16px;
+    }
+    .diag{
+      display:none; margin:14px 0 0; white-space:pre-wrap;
+      background:#0c1219; border:1px solid var(--border); padding:10px; border-radius:10px; color:var(--muted);
+    }
+    .backlink{ text-decoration:none; }
+  </style>
+</head>
+<body class="auth-body">
+  <header class="app-header">
+    <a class="logo backlink" href="index.html">Minterest</a>
+    <nav class="header-right"><a class="btn" href="index.html">← Back</a></nav>
+  </header>
+
+  <main class="settings-wrap">
+    <section class="settings-card" aria-labelledby="settings-title">
+      <div class="settings-head">
+        <h1 id="settings-title" class="settings-title">Settings</h1>
+        <small style="color:var(--muted)">Firestore backed</small>
+      </div>
+
+      <div class="settings-body">
+        <form id="settings-form" class="settings-grid" autocomplete="off">
+          <label for="images">Images folder URL</label>
+          <input id="images" type="url" placeholder="https://drive.google.com/drive/folders/...">
+
+          <label for="videos">Videos folder URL</label>
+          <input id="videos" type="url" placeholder="https://drive.google.com/drive/folders/...">
+
+          <label for="favorites">Favorites folder URL</label>
+          <input id="favorites" type="url" placeholder="https://drive.google.com/drive/folders/...">
+
+          <label for="apiKey">Drive API Key</label>
+          <input id="apiKey" type="text" placeholder="AIza...">
+
+          <label for="pwd1">Password 1</label>
+          <input id="pwd1" type="text" placeholder="required password">
+
+          <label for="pwd2">Password 2</label>
+          <input id="pwd2" type="text" placeholder="alternate password">
+        </form>
+
+        <div class="settings-actions">
+          <button id="btnSave" class="btn primary">Save Settings</button>
+          <button id="btnPing" class="btn">Test Ping</button>
+        </div>
+
+        <p id="msg" class="hint" style="display:none"></p>
+        <div id="diag" class="diag"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- আমাদের কনফিগ/হেল্পার -->
+  <script type="module" src="scripts/config.js"></script>
+  <!-- Firestore read/write -->
+  <script type="module" src="scripts/settings.js"></script>
+</body>
+</html>
